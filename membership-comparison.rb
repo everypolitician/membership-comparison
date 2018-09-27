@@ -25,6 +25,7 @@ end
 
 if $PROGRAM_NAME == __FILE__
   require 'minitest/autorun'
+  require 'pry'
 
   class Minitest::Spec
     def self.test(desc, &block)
