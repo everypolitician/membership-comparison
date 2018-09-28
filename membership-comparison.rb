@@ -32,35 +32,37 @@ module Wikidata
 
     def statement_state(statement)
       return unless statement[:position] == suggestion[:position]
-      if exact_match?(statement)
-        :exact
-      elsif conflicting_match?(statement)
-        :conflict
-      elsif partial_match?(statement)
-        :partial
+
+      fields = %i[party district term start]
+      field_matches = fields.map do |field|
+        a = statement[field]
+        b = suggestion[field]
+        c = suggestion.fetch(:term, {})[:start]
+        d = statement[:end]
+
+        next :ignored if field == :term && a != b
+
+        if field == :start
+          next :conflict if a && c && d && a <= c && a < d
+          next :partial if a && c && a <= c
+        end
+
+        if (a && b && a == b) || (!a && !b)
+          :exact
+        elsif (!a || !b) && a == b
+          :partial
+        elsif (a && b) && a != b
+          :conflict
+        end
       end
-    end
 
-    def exact_match?(statement)
-      statement[:party] == suggestion[:party] &&
-        statement[:district] == suggestion[:district] &&
-        statement[:term] == suggestion[:term] &&
-        statement[:start] == suggestion[:start] &&
-        statement[:end] == suggestion[:end]
-    end
-
-    def partial_match?(statement)
-      binding.pry
-      return false if statement[:term] != suggestion[:term]
-      (suggestion[:party] && statement[:party] == suggestion[:party]) ||
-        (suggestion[:district] && statement[:district] == suggestion[:district]) ||
-        (suggestion[:start] && statement[:start] == suggestion[:start]) ||
-        (suggestion[:end] && statement[:end] == suggestion[:end]) ||
-        (suggestion[:term] && statement[:term] == suggestion[:term])
-    end
-
-    def conflicting_match?(statement)
-      statement[:party] != suggestion[:party]
+      if field_matches.include?(:conflict)
+        :conflict
+      elsif field_matches.include?(nil) || field_matches.include?(:partial)
+        :partial
+      elsif !field_matches.include?(:ignored)
+        :exact
+      end
     end
   end
 end
