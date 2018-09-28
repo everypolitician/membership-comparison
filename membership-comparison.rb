@@ -6,34 +6,62 @@ module Wikidata
     end
 
     def exact_matches
-      existing.select do |_id, statement|
-        statement[:position] == suggestion[:position] &&
-          statement[:party] == suggestion[:party] &&
-          statement[:district] == suggestion[:district] &&
-          statement[:term] == suggestion[:term] &&
-          statement[:start] == suggestion[:start] &&
-          statement[:end] == suggestion[:end]
-      end.keys
+      classified.fetch(:exact, [])
     end
 
     def partial_matches
-      existing.select do |_id, statement|
-        statement[:position] == suggestion[:position] &&
-          (statement[:party] == suggestion[:party] ||
-          statement[:district] == suggestion[:district] ||
-          statement[:term] == suggestion[:term] ||
-          statement[:start] == suggestion[:start] ||
-          statement[:end] == suggestion[:end])
-      end.keys
+      classified.fetch(:partial, [])
     end
 
     def conflicts
-      []
+      classified.fetch(:conflict, [])
     end
 
     private
 
     attr_reader :existing, :suggestion
+
+    def classified
+      @classified ||= existing.each_with_object({}) do |(id, statement), h|
+        state = statement_state(statement)
+        next unless state
+        h[state] ||= []
+        h[state] << id
+      end
+    end
+
+    def statement_state(statement)
+      return unless statement[:position] == suggestion[:position]
+      if exact_match?(statement)
+        :exact
+      elsif conflicting_match?(statement)
+        :conflict
+      elsif partial_match?(statement)
+        :partial
+      end
+    end
+
+    def exact_match?(statement)
+      statement[:party] == suggestion[:party] &&
+        statement[:district] == suggestion[:district] &&
+        statement[:term] == suggestion[:term] &&
+        statement[:start] == suggestion[:start] &&
+        statement[:end] == suggestion[:end]
+    end
+
+    def partial_match?(statement)
+      binding.pry
+      return false if statement[:term] != suggestion[:term]
+      (suggestion[:party] && statement[:party] == suggestion[:party]) ||
+        (suggestion[:district] && statement[:district] == suggestion[:district]) ||
+        (suggestion[:start] && statement[:start] == suggestion[:start]) ||
+        (suggestion[:end] && statement[:end] == suggestion[:end]) ||
+        (suggestion[:term] && statement[:term] == suggestion[:term])
+    end
+
+    def conflicting_match?(statement)
+      statement[:party] != suggestion[:party]
+    end
   end
 end
 
