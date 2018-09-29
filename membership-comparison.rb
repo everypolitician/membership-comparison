@@ -86,6 +86,7 @@ if $PROGRAM_NAME == __FILE__
     let(:term41) { { id: 'Q2816776', start: '2011-06-02', end: '2015-08-02' } }
     let(:term42) { { id: 'Q21157957', start: '2015-12-03' } }
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
+    let(:suggestion41) { { position: mp, term: term41, party: liberal, district: pontiac } }
 
     test 'no existing P39s' do
       comparison = Wikidata::MembershipComparison.new(
@@ -109,6 +110,18 @@ if $PROGRAM_NAME == __FILE__
       comparison.conflicts.must_equal []
     end
 
+    test 'single existing P39, following term' do
+      comparison = Wikidata::MembershipComparison.new(
+        existing: {
+          'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac }
+        },
+        suggestion: suggestion41
+      )
+      comparison.exact_matches.must_equal []
+      comparison.partial_matches.must_equal []
+      comparison.conflicts.must_equal []
+    end
+
     test 'single existing P39, exact match' do
       comparison = Wikidata::MembershipComparison.new(
         existing: {
@@ -121,7 +134,7 @@ if $PROGRAM_NAME == __FILE__
       comparison.conflicts.must_equal []
     end
 
-    test 'multiple existing P39s, one exact match' do
+    test 'multiple existing P39s, current exact match' do
       comparison = Wikidata::MembershipComparison.new(
         existing: {
           'wds:1030-1DAA-3100' => { position: mp, term: term41, party: liberal, district: pontiac },
@@ -130,6 +143,19 @@ if $PROGRAM_NAME == __FILE__
         suggestion: suggestion
       )
       comparison.exact_matches.must_equal ['wds:1030-1DAA-3101']
+      comparison.partial_matches.must_equal []
+      comparison.conflicts.must_equal []
+    end
+
+    test 'multiple existing P39s, historic exact match' do
+      comparison = Wikidata::MembershipComparison.new(
+        existing: {
+          'wds:1030-1DAA-3100' => { position: mp, term: term41, party: liberal, district: pontiac },
+          'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac }
+        },
+        suggestion: suggestion41
+      )
+      comparison.exact_matches.must_equal ['wds:1030-1DAA-3100']
       comparison.partial_matches.must_equal []
       comparison.conflicts.must_equal []
     end
