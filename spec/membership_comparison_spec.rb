@@ -295,4 +295,19 @@ describe MembershipComparison do
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty } # Currently fails
   end
+
+  context 'member returns within term (previous still open)' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3107' => { position: mp, start: '2015-12-03', party: liberal, district: pontiac },
+        },
+        suggestion: { position: mp, term: term42, start: '2017-01-03', party: liberal, district: pontiac }
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty } # Currently fails
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3107']) }
+  end
 end
