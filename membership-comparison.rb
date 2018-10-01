@@ -75,15 +75,10 @@ module Wikidata
     end
 
     def start_state
-      a = statement[:start]
-      b = suggestion[:start]
-      c = suggestion.fetch(:term, {})[:start]
-      d = statement[:end]
-
-      return :conflict if a && c && d && a <= c && a < d
-      return :partial if a && c && a <= c
-
-      StartComparison.new(a, b).state
+      StartComparison.new(
+        statement[:start], suggestion[:start],
+        statement[:end],   suggestion.dig(:term, :start)
+      ).state
     end
   end
 
@@ -117,7 +112,25 @@ module Wikidata
     end
   end
 
-  StartComparison = Class.new(FieldComparison)
+  class StartComparison < FieldComparison
+    attr_reader :statement_start, :suggestion_start, :statement_end, :suggestion_term_start
+
+    def initialize(statement_start, suggestion_start, statement_end, suggestion_term_start)
+      @statement_start = statement_start
+      @suggestion_start = suggestion_start
+      @statement_end = statement_end
+      @suggestion_term_start = suggestion_term_start
+
+      super(statement_start, suggestion_start)
+    end
+
+    def state
+      return :conflict if statement_start && suggestion_term_start && statement_end && statement_start <= suggestion_term_start && statement_start < statement_end
+      return :partial if statement_start && suggestion_term_start && statement_start <= suggestion_term_start
+
+      super
+    end
+  end
 end
 
 if $PROGRAM_NAME == __FILE__
