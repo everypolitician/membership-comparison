@@ -43,13 +43,13 @@ module Wikidata
     def state
       return unless statement[:position] == suggestion[:position]
 
-      states = field_states
+      comparisons = field_comparisons
 
-      if states.all? { |s| s == :exact }
+      if comparisons.all?(&:exact?)
         :exact
-      elsif states.any? { |s| s == :conflict }
+      elsif comparisons.any?(&:conflict?)
         :conflict
-      elsif states.any? { |s| s == :partial }
+      elsif comparisons.any?(&:partial?)
         :partial
       end
     end
@@ -58,27 +58,27 @@ module Wikidata
 
     attr_reader :statement, :suggestion
 
-    def field_states
-      [party_state, district_state, term_state, start_state]
+    def field_comparisons
+      [party_comparison, district_comparison, term_comparison, start_comparison]
     end
 
-    def party_state
-      PartyComparison.new(statement[:party], suggestion[:party]).state
+    def party_comparison
+      PartyComparison.new(statement[:party], suggestion[:party])
     end
 
-    def district_state
-      DistrictComparison.new(statement[:district], suggestion[:district]).state
+    def district_comparison
+      DistrictComparison.new(statement[:district], suggestion[:district])
     end
 
-    def term_state
-      TermComparison.new(statement[:term], suggestion[:term]).state
+    def term_comparison
+      TermComparison.new(statement[:term], suggestion[:term])
     end
 
-    def start_state
+    def start_comparison
       StartComparison.new(
         statement[:start], suggestion[:start],
         statement[:end],   suggestion.dig(:term, :start)
-      ).state
+      )
     end
   end
 
@@ -100,16 +100,6 @@ module Wikidata
 
     def partial?
       !exact? && !conflict?
-    end
-
-    def state
-      if exact?
-        :exact
-      elsif conflict?
-        :conflict
-      elsif partial?
-        :partial
-      end
     end
   end
 
