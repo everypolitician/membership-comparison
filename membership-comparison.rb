@@ -63,19 +63,19 @@ module Wikidata
     end
 
     def party_comparison
-      PartyComparison.new(statement, suggestion)
+      PartyComparison.new(statement: statement, suggestion: suggestion)
     end
 
     def district_comparison
-      DistrictComparison.new(statement, suggestion)
+      DistrictComparison.new(statement: statement, suggestion: suggestion)
     end
 
     def term_comparison
-      TermComparison.new(statement, suggestion)
+      TermComparison.new(statement: statement, suggestion: suggestion)
     end
 
     def start_comparison
-      StartComparison.new(statement, suggestion)
+      StartComparison.new(statement: statement, suggestion: suggestion)
     end
   end
 
@@ -90,7 +90,7 @@ module Wikidata
       @field || raise(NotImplementedError)
     end
 
-    def initialize(statement, suggestion)
+    def initialize(statement:, suggestion:)
       field = self.class.field
 
       @a = statement[field]
@@ -138,7 +138,7 @@ module Wikidata
 
     attr_reader :statement_end, :suggestion_term_start
 
-    def initialize(statement, suggestion)
+    def initialize(statement:, suggestion:)
       @statement_end = statement[:end]
       @suggestion_term_start = suggestion.dig(:term, :start)
       super
