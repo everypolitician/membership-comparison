@@ -59,13 +59,17 @@ module Wikidata
           next :partial if a && c && a <= c
         end
 
-        if a == b
-          :exact
-        elsif a && b && a != b
-          :conflict
-        else
-          :partial
-        end
+        field_state(a, b)
+      end
+    end
+
+    def field_state(a, b)
+      if a == b
+        :exact
+      elsif a && b && a != b
+        :conflict
+      else
+        :partial
       end
     end
   end
