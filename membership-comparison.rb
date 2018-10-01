@@ -33,8 +33,20 @@ module Wikidata
     def statement_state(statement)
       return unless statement[:position] == suggestion[:position]
 
+      states = field_states(statement)
+
+      if states.include?(:conflict)
+        :conflict
+      elsif states.include?(:partial)
+        :partial
+      elsif !states.include?(:ignored)
+        :exact
+      end
+    end
+
+    def field_states(statement)
       fields = %i[party district term start]
-      field_matches = fields.map do |field|
+      fields.map do |field|
         a = statement[field]
         b = suggestion[field]
         c = suggestion.fetch(:term, {})[:start]
@@ -54,14 +66,6 @@ module Wikidata
         else
           :partial
         end
-      end
-
-      if field_matches.include?(:conflict)
-        :conflict
-      elsif field_matches.include?(:partial)
-        :partial
-      elsif !field_matches.include?(:ignored)
-        :exact
       end
     end
   end
