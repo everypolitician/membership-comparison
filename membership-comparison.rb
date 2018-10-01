@@ -35,12 +35,12 @@ module Wikidata
 
       states = field_states(statement)
 
-      if states.include?(:conflict)
-        :conflict
-      elsif states.include?(:partial)
-        :partial
-      elsif !states.include?(:ignored)
+      if states.all? { |s| s == :exact }
         :exact
+      elsif states.any? { |s| s == :conflict }
+        :conflict
+      elsif states.any? { |s| s == :partial }
+        :partial
       end
     end
 
