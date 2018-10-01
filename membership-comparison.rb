@@ -93,6 +93,8 @@ module Wikidata
     def initialize(statement:, suggestion:)
       field = self.class.field
 
+      @statement = statement
+      @suggestion = suggestion
       @a = statement[field]
       @b = suggestion[field]
 
@@ -136,14 +138,6 @@ module Wikidata
   class StartComparison < FieldComparison
     self.field = :start
 
-    attr_reader :statement_end, :suggestion_term_start
-
-    def initialize(statement:, suggestion:)
-      @statement_end = statement[:end]
-      @suggestion_term_start = suggestion.dig(:term, :start)
-      super
-    end
-
     def conflict?
       super || (
         ended? && started_lte_suggestion_term?
@@ -164,6 +158,14 @@ module Wikidata
 
     def ended?
       statement_end && statement_start < statement_end
+    end
+
+    def statement_end
+      statement[:end]
+    end
+
+    def suggestion_term_start
+      suggestion.dig(:term, :start)
     end
   end
 end
