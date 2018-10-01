@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Wikidata
   class MembershipComparison
     def initialize(existing:, suggestion:)
@@ -23,7 +25,7 @@ module Wikidata
 
     def classified
       @classified ||= existing.each_with_object({}) do |(id, statement), h|
-        comparison = StatementComparison.new(statement: statement,
+        comparison = StatementComparison.new(statement:  statement,
                                              suggestion: suggestion)
         state = comparison.state
         next unless state
@@ -82,8 +84,8 @@ module Wikidata
   class FieldComparison
     attr_reader :statement, :suggestion, :a, :b
 
-    def self.field=(field)
-      @field = field
+    class << self
+      attr_writer :field
     end
 
     def self.field
