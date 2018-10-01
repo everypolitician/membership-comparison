@@ -14,148 +14,184 @@ describe Wikidata::MembershipComparison do
   let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
   let(:suggestion41) { { position: mp, term: term41, party: liberal, district: pontiac } }
 
-  it 'no existing P39s' do
-    comparison = Wikidata::MembershipComparison.new(
-      existing:   {},
-      suggestion: suggestion
-    )
-    expect(comparison.exact_matches).to match_array([])
-    expect(comparison.partial_matches).to match_array([])
-    expect(comparison.conflicts).to match_array([])
+  context 'no existing P39s' do
+    let(:comparison) do
+      Wikidata::MembershipComparison.new(
+        existing:   {},
+        suggestion: suggestion
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
   end
 
-  it 'single existing P39, previous term' do
-    comparison = Wikidata::MembershipComparison.new(
-      existing:   {
-        'wds:1030-1DAA-3100' => { position: mp, term: term41, party: liberal, district: pontiac },
-      },
-      suggestion: suggestion
-    )
-    expect(comparison.exact_matches).to match_array([])
-    expect(comparison.partial_matches).to match_array([])
-    expect(comparison.conflicts).to match_array([])
+  context 'single existing P39, previous term' do
+    let(:comparison) do
+      Wikidata::MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3100' => { position: mp, term: term41, party: liberal, district: pontiac },
+        },
+        suggestion: suggestion
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
   end
 
-  it 'single existing P39, following term' do
-    comparison = Wikidata::MembershipComparison.new(
-      existing:   {
-        'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
-      },
-      suggestion: suggestion41
-    )
-    expect(comparison.exact_matches).to match_array([])
-    expect(comparison.partial_matches).to match_array([])
-    expect(comparison.conflicts).to match_array([])
+  context 'single existing P39, following term' do
+    let(:comparison) do
+      Wikidata::MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
+        },
+        suggestion: suggestion41
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
   end
 
-  it 'single existing P39, exact match' do
-    comparison = Wikidata::MembershipComparison.new(
-      existing:   {
-        'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
-      },
-      suggestion: suggestion
-    )
-    expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3101'])
-    expect(comparison.partial_matches).to match_array([])
-    expect(comparison.conflicts).to match_array([])
+  context 'single existing P39, exact match' do
+    let(:comparison) do
+      Wikidata::MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
+        },
+        suggestion: suggestion
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3101']) }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
   end
 
-  it 'multiple existing P39s, current exact match' do
-    comparison = Wikidata::MembershipComparison.new(
-      existing:   {
-        'wds:1030-1DAA-3100' => { position: mp, term: term41, party: liberal, district: pontiac },
-        'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
-      },
-      suggestion: suggestion
-    )
-    expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3101'])
-    expect(comparison.partial_matches).to match_array([])
-    expect(comparison.conflicts).to match_array([])
+  context 'multiple existing P39s, current exact match' do
+    let(:comparison) do
+      Wikidata::MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3100' => { position: mp, term: term41, party: liberal, district: pontiac },
+          'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
+        },
+        suggestion: suggestion
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3101']) }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
   end
 
-  it 'multiple existing P39s, historic exact match' do
-    comparison = Wikidata::MembershipComparison.new(
-      existing:   {
-        'wds:1030-1DAA-3100' => { position: mp, term: term41, party: liberal, district: pontiac },
-        'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
-      },
-      suggestion: suggestion41
-    )
-    expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3100'])
-    expect(comparison.partial_matches).to match_array([])
-    expect(comparison.conflicts).to match_array([])
+  context 'multiple existing P39s, historic exact match' do
+    let(:comparison) do
+      Wikidata::MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3100' => { position: mp, term: term41, party: liberal, district: pontiac },
+          'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
+        },
+        suggestion: suggestion41
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3100']) }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
   end
 
-  it 'single existing P39, partial match' do
-    comparison = Wikidata::MembershipComparison.new(
-      existing:   {
-        'wds:1030-1DAA-3102' => { position: mp, term: term42 },
-      },
-      suggestion: suggestion
-    )
-    expect(comparison.exact_matches).to match_array([])
-    expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3102'])
-    expect(comparison.conflicts).to match_array([])
+  context 'single existing P39, partial match' do
+    let(:comparison) do
+      Wikidata::MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3102' => { position: mp, term: term42 },
+        },
+        suggestion: suggestion
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3102']) }
+    specify { expect(comparison.conflicts).to be_empty }
   end
 
-  it 'single existing P39, conflict' do
-    comparison = Wikidata::MembershipComparison.new(
-      existing:   {
-        'wds:1030-1DAA-3102' => { position: mp, term: term42, party: conservative },
-      },
-      suggestion: suggestion
-    )
-    expect(comparison.exact_matches).to match_array([])
-    expect(comparison.partial_matches).to match_array([])
-    expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3102'])
+  context 'single existing P39, conflict' do
+    let(:comparison) do
+      Wikidata::MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3102' => { position: mp, term: term42, party: conservative },
+        },
+        suggestion: suggestion
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3102']) }
   end
 
-  it 'single existing P39, different position' do
-    comparison = Wikidata::MembershipComparison.new(
-      existing:   {
-        'wds:1030-1DAA-4100' => { position: speaker, term: term41, party: liberal, district: pontiac },
-      },
-      suggestion: suggestion
-    )
-    expect(comparison.exact_matches).to match_array([])
-    expect(comparison.partial_matches).to match_array([])
-    expect(comparison.conflicts).to match_array([])
+  context 'single existing P39, different position' do
+    let(:comparison) do
+      Wikidata::MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-4100' => { position: speaker, term: term41, party: liberal, district: pontiac },
+        },
+        suggestion: suggestion
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
   end
 
-  it 'existing dated P39, within term' do
-    comparison = Wikidata::MembershipComparison.new(
-      existing:   {
-        'wds:1030-1DAA-3103' => { position: mp, start: '2015-12-03', party: liberal, district: pontiac },
-      },
-      suggestion: suggestion
-    )
-    expect(comparison.exact_matches).to match_array([])
-    expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3103'])
-    expect(comparison.conflicts).to match_array([])
+  context 'existing dated P39, within term' do
+    let(:comparison) do
+      Wikidata::MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3103' => { position: mp, start: '2015-12-03', party: liberal, district: pontiac },
+        },
+        suggestion: suggestion
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3103']) }
+    specify { expect(comparison.conflicts).to be_empty }
   end
 
-  it 'existing dated P39 between terms' do
-    comparison = Wikidata::MembershipComparison.new(
-      existing:   {
-        'wds:1030-1DAA-3104' => { position: mp, start: '2015-10-18', party: liberal, district: pontiac },
-      },
-      suggestion: suggestion
-    )
-    expect(comparison.exact_matches).to match_array([])
-    expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3104'])
-    expect(comparison.conflicts).to match_array([])
+  context 'existing dated P39 between terms' do
+    let(:comparison) do
+      Wikidata::MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3104' => { position: mp, start: '2015-10-18', party: liberal, district: pontiac },
+        },
+        suggestion: suggestion
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3104']) }
+    specify { expect(comparison.conflicts).to be_empty }
   end
 
-  it 'existing dated P39 spanning terms' do
-    comparison = Wikidata::MembershipComparison.new(
-      existing:   {
-        'wds:1030-1DAA-3105' => { position: mp, start: '2011-06-02', end: '2017-11-12', party: liberal,
-                                  district: pontiac, },
-      },
-      suggestion: suggestion
-    )
-    expect(comparison.exact_matches).to match_array([])
-    expect(comparison.partial_matches).to match_array([])
-    expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3105'])
+  context 'existing dated P39 spanning terms' do
+    let(:comparison) do
+      Wikidata::MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3105' => { position: mp, start: '2011-06-02', end: '2017-11-12', party: liberal,
+                                    district: pontiac, },
+        },
+        suggestion: suggestion
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3105']) }
   end
 end
