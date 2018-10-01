@@ -63,31 +63,36 @@ module Wikidata
     end
 
     def party_comparison
-      PartyComparison.new(statement[:party], suggestion[:party])
+      PartyComparison.new(statement, suggestion)
     end
 
     def district_comparison
-      DistrictComparison.new(statement[:district], suggestion[:district])
+      DistrictComparison.new(statement, suggestion)
     end
 
     def term_comparison
-      TermComparison.new(statement[:term], suggestion[:term])
+      TermComparison.new(statement, suggestion)
     end
 
     def start_comparison
-      StartComparison.new(
-        statement[:start], suggestion[:start],
-        statement[:end],   suggestion.dig(:term, :start)
-      )
+      StartComparison.new(statement, suggestion)
     end
   end
 
   class FieldComparison
-    attr_reader :a, :b
+    attr_reader :statement, :suggestion, :a, :b
 
-    def initialize(value_a, value_b)
-      @a = value_a
-      @b = value_b
+    def self.field=(field)
+      @field = field
+    end
+
+    def self.field
+      @field || raise(NotImplementedError)
+    end
+
+    def initialize(statement, suggestion)
+      @a = statement[self.class.field]
+      @b = suggestion[self.class.field]
     end
 
     def exact?
@@ -103,10 +108,17 @@ module Wikidata
     end
   end
 
-  PartyComparison = Class.new(FieldComparison)
-  DistrictComparison = Class.new(FieldComparison)
+  class PartyComparison < FieldComparison
+    self.field = :party
+  end
+
+  class DistrictComparison < FieldComparison
+    self.field = :district
+  end
 
   class TermComparison < FieldComparison
+    self.field = :term
+
     def conflict?
       false
     end
@@ -117,15 +129,17 @@ module Wikidata
   end
 
   class StartComparison < FieldComparison
+    self.field = :start
+
     attr_reader :statement_start, :suggestion_start, :statement_end, :suggestion_term_start
 
-    def initialize(statement_start, suggestion_start, statement_end, suggestion_term_start)
-      @statement_start = statement_start
-      @suggestion_start = suggestion_start
-      @statement_end = statement_end
-      @suggestion_term_start = suggestion_term_start
+    def initialize(statement, suggestion)
+      @statement_start = statement[:start]
+      @suggestion_start = suggestion[:start]
+      @statement_end = statement[:end]
+      @suggestion_term_start = suggestion.dig(:term, :start)
 
-      super(statement_start, suggestion_start)
+      super
     end
 
     def conflict?
