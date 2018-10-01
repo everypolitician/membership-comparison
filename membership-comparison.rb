@@ -63,11 +63,11 @@ module Wikidata
     end
 
     def party_state
-      field_state(statement[:party], suggestion[:party])
+      FieldComparison.new(statement[:party], suggestion[:party]).state
     end
 
     def district_state
-      field_state(statement[:district], suggestion[:district])
+      FieldComparison.new(statement[:district], suggestion[:district]).state
     end
 
     def term_state
@@ -76,7 +76,7 @@ module Wikidata
 
       return :ignored if a != b
 
-      field_state(a, b)
+      FieldComparison.new(a, b).state
     end
 
     def start_state
@@ -88,10 +88,19 @@ module Wikidata
       return :conflict if a && c && d && a <= c && a < d
       return :partial if a && c && a <= c
 
-      field_state(a, b)
+      FieldComparison.new(a, b).state
+    end
+  end
+
+  class FieldComparison
+    attr_reader :a, :b
+
+    def initialize(value_a, value_b)
+      @a = value_a
+      @b = value_b
     end
 
-    def field_state(a, b)
+    def state
       if a == b
         :exact
       elsif a && b && a != b
