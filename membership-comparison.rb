@@ -63,11 +63,11 @@ module Wikidata
     end
 
     def party_state
-      FieldComparison.new(statement[:party], suggestion[:party]).state
+      PartyComparison.new(statement[:party], suggestion[:party]).state
     end
 
     def district_state
-      FieldComparison.new(statement[:district], suggestion[:district]).state
+      DistrictComparison.new(statement[:district], suggestion[:district]).state
     end
 
     def term_state
@@ -76,7 +76,7 @@ module Wikidata
 
       return :ignored if a != b
 
-      FieldComparison.new(a, b).state
+      TermComparison.new(a, b).state
     end
 
     def start_state
@@ -88,7 +88,7 @@ module Wikidata
       return :conflict if a && c && d && a <= c && a < d
       return :partial if a && c && a <= c
 
-      FieldComparison.new(a, b).state
+      StartComparison.new(a, b).state
     end
   end
 
@@ -110,6 +110,11 @@ module Wikidata
       end
     end
   end
+
+  PartyComparison = Class.new(FieldComparison)
+  DistrictComparison = Class.new(FieldComparison)
+  TermComparison = Class.new(FieldComparison)
+  StartComparison = Class.new(FieldComparison)
 end
 
 if $PROGRAM_NAME == __FILE__
