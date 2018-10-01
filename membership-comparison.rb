@@ -71,12 +71,7 @@ module Wikidata
     end
 
     def term_state
-      a = statement[:term]
-      b = suggestion[:term]
-
-      return :ignored if a != b
-
-      TermComparison.new(a, b).state
+      TermComparison.new(statement[:term], suggestion[:term]).state
     end
 
     def start_state
@@ -113,7 +108,15 @@ module Wikidata
 
   PartyComparison = Class.new(FieldComparison)
   DistrictComparison = Class.new(FieldComparison)
-  TermComparison = Class.new(FieldComparison)
+
+  class TermComparison < FieldComparison
+    def state
+      return :ignored if a != b
+
+      super
+    end
+  end
+
   StartComparison = Class.new(FieldComparison)
 end
 
