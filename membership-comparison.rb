@@ -139,11 +139,25 @@ module Wikidata
     end
 
     def conflict?
-      super || statement_start && suggestion_term_start && statement_end && statement_start <= suggestion_term_start && statement_start < statement_end
+      super || (
+        ended? && started_lte_suggestion_term?
+      )
     end
 
     def partial?
-      super || statement_start && suggestion_term_start && statement_start <= suggestion_term_start
+      super ||
+        started_lte_suggestion_term?
+    end
+
+    private
+
+    def started_lte_suggestion_term?
+      statement_start && suggestion_term_start &&
+        statement_start <= suggestion_term_start
+    end
+
+    def ended?
+      statement_end && statement_start < statement_end
     end
   end
 end
