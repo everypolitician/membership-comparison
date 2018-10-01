@@ -47,18 +47,18 @@ module Wikidata
           next :partial if a && c && a <= c
         end
 
-        if (a && b && a == b) || (!a && !b)
+        if a == b
           :exact
-        elsif (!a || !b) && a == b
-          :partial
-        elsif (a && b) && a != b
+        elsif a && b && a != b
           :conflict
+        else
+          :partial
         end
       end
 
       if field_matches.include?(:conflict)
         :conflict
-      elsif field_matches.include?(nil) || field_matches.include?(:partial)
+      elsif field_matches.include?(:partial)
         :partial
       elsif !field_matches.include?(:ignored)
         :exact
