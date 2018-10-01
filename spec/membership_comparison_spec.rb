@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require_relative './test_helper'
+require_relative './spec_helper'
+require_relative '../lib/membership_comparison'
 
 describe Wikidata::MembershipComparison do
   let(:mp) { { id: 'Q15964890' } }
@@ -18,9 +19,9 @@ describe Wikidata::MembershipComparison do
       existing:   {},
       suggestion: suggestion
     )
-    comparison.exact_matches.must_equal []
-    comparison.partial_matches.must_equal []
-    comparison.conflicts.must_equal []
+    expect(comparison.exact_matches).to match_array([])
+    expect(comparison.partial_matches).to match_array([])
+    expect(comparison.conflicts).to match_array([])
   end
 
   it 'single existing P39, previous term' do
@@ -30,9 +31,9 @@ describe Wikidata::MembershipComparison do
       },
       suggestion: suggestion
     )
-    comparison.exact_matches.must_equal []
-    comparison.partial_matches.must_equal []
-    comparison.conflicts.must_equal []
+    expect(comparison.exact_matches).to match_array([])
+    expect(comparison.partial_matches).to match_array([])
+    expect(comparison.conflicts).to match_array([])
   end
 
   it 'single existing P39, following term' do
@@ -42,9 +43,9 @@ describe Wikidata::MembershipComparison do
       },
       suggestion: suggestion41
     )
-    comparison.exact_matches.must_equal []
-    comparison.partial_matches.must_equal []
-    comparison.conflicts.must_equal []
+    expect(comparison.exact_matches).to match_array([])
+    expect(comparison.partial_matches).to match_array([])
+    expect(comparison.conflicts).to match_array([])
   end
 
   it 'single existing P39, exact match' do
@@ -54,9 +55,9 @@ describe Wikidata::MembershipComparison do
       },
       suggestion: suggestion
     )
-    comparison.exact_matches.must_equal ['wds:1030-1DAA-3101']
-    comparison.partial_matches.must_equal []
-    comparison.conflicts.must_equal []
+    expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3101'])
+    expect(comparison.partial_matches).to match_array([])
+    expect(comparison.conflicts).to match_array([])
   end
 
   it 'multiple existing P39s, current exact match' do
@@ -67,9 +68,9 @@ describe Wikidata::MembershipComparison do
       },
       suggestion: suggestion
     )
-    comparison.exact_matches.must_equal ['wds:1030-1DAA-3101']
-    comparison.partial_matches.must_equal []
-    comparison.conflicts.must_equal []
+    expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3101'])
+    expect(comparison.partial_matches).to match_array([])
+    expect(comparison.conflicts).to match_array([])
   end
 
   it 'multiple existing P39s, historic exact match' do
@@ -80,9 +81,9 @@ describe Wikidata::MembershipComparison do
       },
       suggestion: suggestion41
     )
-    comparison.exact_matches.must_equal ['wds:1030-1DAA-3100']
-    comparison.partial_matches.must_equal []
-    comparison.conflicts.must_equal []
+    expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3100'])
+    expect(comparison.partial_matches).to match_array([])
+    expect(comparison.conflicts).to match_array([])
   end
 
   it 'single existing P39, partial match' do
@@ -92,9 +93,9 @@ describe Wikidata::MembershipComparison do
       },
       suggestion: suggestion
     )
-    comparison.exact_matches.must_equal []
-    comparison.partial_matches.must_equal ['wds:1030-1DAA-3102']
-    comparison.conflicts.must_equal []
+    expect(comparison.exact_matches).to match_array([])
+    expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3102'])
+    expect(comparison.conflicts).to match_array([])
   end
 
   it 'single existing P39, conflict' do
@@ -104,9 +105,9 @@ describe Wikidata::MembershipComparison do
       },
       suggestion: suggestion
     )
-    comparison.exact_matches.must_equal []
-    comparison.partial_matches.must_equal []
-    comparison.conflicts.must_equal ['wds:1030-1DAA-3102']
+    expect(comparison.exact_matches).to match_array([])
+    expect(comparison.partial_matches).to match_array([])
+    expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3102'])
   end
 
   it 'single existing P39, different position' do
@@ -116,9 +117,9 @@ describe Wikidata::MembershipComparison do
       },
       suggestion: suggestion
     )
-    comparison.exact_matches.must_equal []
-    comparison.partial_matches.must_equal []
-    comparison.conflicts.must_equal []
+    expect(comparison.exact_matches).to match_array([])
+    expect(comparison.partial_matches).to match_array([])
+    expect(comparison.conflicts).to match_array([])
   end
 
   it 'existing dated P39, within term' do
@@ -128,9 +129,9 @@ describe Wikidata::MembershipComparison do
       },
       suggestion: suggestion
     )
-    comparison.exact_matches.must_equal []
-    comparison.partial_matches.must_equal ['wds:1030-1DAA-3103']
-    comparison.conflicts.must_equal []
+    expect(comparison.exact_matches).to match_array([])
+    expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3103'])
+    expect(comparison.conflicts).to match_array([])
   end
 
   it 'existing dated P39 between terms' do
@@ -140,9 +141,9 @@ describe Wikidata::MembershipComparison do
       },
       suggestion: suggestion
     )
-    comparison.exact_matches.must_equal []
-    comparison.partial_matches.must_equal ['wds:1030-1DAA-3104']
-    comparison.conflicts.must_equal []
+    expect(comparison.exact_matches).to match_array([])
+    expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3104'])
+    expect(comparison.conflicts).to match_array([])
   end
 
   it 'existing dated P39 spanning terms' do
@@ -153,8 +154,8 @@ describe Wikidata::MembershipComparison do
       },
       suggestion: suggestion
     )
-    comparison.exact_matches.must_equal []
-    comparison.partial_matches.must_equal []
-    comparison.conflicts.must_equal ['wds:1030-1DAA-3105']
+    expect(comparison.exact_matches).to match_array([])
+    expect(comparison.partial_matches).to match_array([])
+    expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3105'])
   end
 end

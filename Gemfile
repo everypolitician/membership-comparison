@@ -8,7 +8,7 @@ group :development do
   gem 'rake'
   gem 'rubocop', '0.59.2'
 
-  gem 'minitest'
+  gem 'rspec'
 
   platforms :mri do
     gem 'pry'

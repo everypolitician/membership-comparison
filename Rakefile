@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'rake/testtask'
+require 'rspec/core/rake_task'
 require 'rubocop/rake_task'
 
-task default: %i[test rubocop]
-
-Rake::TestTask.new { |t| t.pattern = './test/**/*_test.rb' }
+RSpec::Core::RakeTask.new(:spec)
 RuboCop::RakeTask.new
+
+task default: %i[spec rubocop]
