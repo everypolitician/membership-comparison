@@ -90,12 +90,24 @@ module Wikidata
       @b = value_b
     end
 
+    def exact?
+      a == b
+    end
+
+    def conflict?
+      a && b && a != b
+    end
+
+    def partial?
+      !exact? && !conflict?
+    end
+
     def state
-      if a == b
+      if exact?
         :exact
-      elsif a && b && a != b
+      elsif conflict?
         :conflict
-      else
+      elsif partial?
         :partial
       end
     end
@@ -105,10 +117,12 @@ module Wikidata
   DistrictComparison = Class.new(FieldComparison)
 
   class TermComparison < FieldComparison
-    def state
-      return :ignored if a != b
+    def conflict?
+      false
+    end
 
-      super
+    def partial?
+      false
     end
   end
 
@@ -124,11 +138,12 @@ module Wikidata
       super(statement_start, suggestion_start)
     end
 
-    def state
-      return :conflict if statement_start && suggestion_term_start && statement_end && statement_start <= suggestion_term_start && statement_start < statement_end
-      return :partial if statement_start && suggestion_term_start && statement_start <= suggestion_term_start
+    def conflict?
+      super || statement_start && suggestion_term_start && statement_end && statement_start <= suggestion_term_start && statement_start < statement_end
+    end
 
-      super
+    def partial?
+      super || statement_start && suggestion_term_start && statement_start <= suggestion_term_start
     end
   end
 end
