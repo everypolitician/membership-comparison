@@ -23,17 +23,27 @@ module Wikidata
 
     def classified
       @classified ||= existing.each_with_object({}) do |(id, statement), h|
-        state = statement_state(statement)
+        comparison = StatementComparison.new(statement: statement,
+                                             suggestion: suggestion)
+        state = comparison.state
         next unless state
+
         h[state] ||= []
         h[state] << id
       end
     end
+  end
 
-    def statement_state(statement)
+  class StatementComparison
+    def initialize(statement:, suggestion:)
+      @statement = statement
+      @suggestion = suggestion
+    end
+
+    def state
       return unless statement[:position] == suggestion[:position]
 
-      states = field_states(statement)
+      states = field_states
 
       if states.all? { |s| s == :exact }
         :exact
@@ -44,7 +54,11 @@ module Wikidata
       end
     end
 
-    def field_states(statement)
+    private
+
+    attr_reader :statement, :suggestion
+
+    def field_states
       fields = %i[party district term start]
       fields.map do |field|
         a = statement[field]
