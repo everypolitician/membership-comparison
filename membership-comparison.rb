@@ -59,22 +59,36 @@ module Wikidata
     attr_reader :statement, :suggestion
 
     def field_states
-      fields = %i[party district term start]
-      fields.map do |field|
-        a = statement[field]
-        b = suggestion[field]
-        c = suggestion.fetch(:term, {})[:start]
-        d = statement[:end]
+      [party_state, district_state, term_state, start_state]
+    end
 
-        next :ignored if field == :term && a != b
+    def party_state
+      field_state(statement[:party], suggestion[:party])
+    end
 
-        if field == :start
-          next :conflict if a && c && d && a <= c && a < d
-          next :partial if a && c && a <= c
-        end
+    def district_state
+      field_state(statement[:district], suggestion[:district])
+    end
 
-        field_state(a, b)
-      end
+    def term_state
+      a = statement[:term]
+      b = suggestion[:term]
+
+      return :ignored if a != b
+
+      field_state(a, b)
+    end
+
+    def start_state
+      a = statement[:start]
+      b = suggestion[:start]
+      c = suggestion.fetch(:term, {})[:start]
+      d = statement[:end]
+
+      return :conflict if a && c && d && a <= c && a < d
+      return :partial if a && c && a <= c
+
+      field_state(a, b)
     end
 
     def field_state(a, b)
