@@ -91,8 +91,13 @@ module Wikidata
     end
 
     def initialize(statement, suggestion)
-      @a = statement[self.class.field]
-      @b = suggestion[self.class.field]
+      field = self.class.field
+
+      @a = statement[field]
+      @b = suggestion[field]
+
+      self.class.alias_method("statement_#{field}", :a)
+      self.class.alias_method("suggestion_#{field}", :b)
     end
 
     def exact?
@@ -131,14 +136,11 @@ module Wikidata
   class StartComparison < FieldComparison
     self.field = :start
 
-    attr_reader :statement_start, :suggestion_start, :statement_end, :suggestion_term_start
+    attr_reader :statement_end, :suggestion_term_start
 
     def initialize(statement, suggestion)
-      @statement_start = statement[:start]
-      @suggestion_start = suggestion[:start]
       @statement_end = statement[:end]
       @suggestion_term_start = suggestion.dig(:term, :start)
-
       super
     end
 
