@@ -2,7 +2,15 @@
 
 source 'https://rubygems.org'
 
-git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
+gemspec
 
-gem 'minitest'
-gem 'pry'
+group :development do
+  gem 'rake'
+  gem 'rubocop', '0.59.2'
+
+  gem 'rspec'
+
+  platforms :mri do
+    gem 'pry'
+  end
+end
