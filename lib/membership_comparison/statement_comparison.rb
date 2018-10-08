@@ -5,7 +5,7 @@ require_relative './district_comparison'
 require_relative './term_comparison'
 require_relative './start_comparison'
 
-module Wikidata
+class MembershipComparison
   class StatementComparison
     def initialize(statement:, suggestion:)
       @statement = statement

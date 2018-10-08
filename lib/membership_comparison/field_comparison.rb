@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Wikidata
+class MembershipComparison
   class FieldComparison
     attr_reader :statement, :suggestion, :a, :b
 

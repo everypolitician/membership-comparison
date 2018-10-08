@@ -6,7 +6,7 @@ require 'membership_comparison/version'
 
 Gem::Specification.new do |s|
   s.name = 'membership-comparison'
-  s.version = Wikidata::MembershipComparison::VERSION
+  s.version = MembershipComparison::VERSION
   s.summary = ''
   s.description = ''
   s.author = 'EveryPolitician'

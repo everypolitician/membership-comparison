@@ -2,7 +2,7 @@
 
 require_relative './field_comparison'
 
-module Wikidata
+class MembershipComparison
   class DistrictComparison < FieldComparison
     self.field = :district
   end

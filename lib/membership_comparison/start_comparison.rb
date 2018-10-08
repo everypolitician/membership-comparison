@@ -2,7 +2,7 @@
 
 require_relative './field_comparison'
 
-module Wikidata
+class MembershipComparison
   class StartComparison < FieldComparison
     self.field = :start
 

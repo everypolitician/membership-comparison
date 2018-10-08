@@ -3,7 +3,7 @@
 require_relative './spec_helper'
 require_relative '../lib/membership_comparison'
 
-describe Wikidata::MembershipComparison do
+describe MembershipComparison do
   let(:mp) { { id: 'Q15964890' } }
   let(:speaker) { { id: 'Q2506685' } }
   let(:liberal) { { id: 'Q138345' } }
@@ -16,7 +16,7 @@ describe Wikidata::MembershipComparison do
 
   context 'no existing P39s' do
     let(:comparison) do
-      Wikidata::MembershipComparison.new(
+      MembershipComparison.new(
         existing:   {},
         suggestion: suggestion
       )
@@ -29,7 +29,7 @@ describe Wikidata::MembershipComparison do
 
   context 'single existing P39, previous term' do
     let(:comparison) do
-      Wikidata::MembershipComparison.new(
+      MembershipComparison.new(
         existing:   {
           'wds:1030-1DAA-3100' => { position: mp, term: term41, party: liberal, district: pontiac },
         },
@@ -44,7 +44,7 @@ describe Wikidata::MembershipComparison do
 
   context 'single existing P39, following term' do
     let(:comparison) do
-      Wikidata::MembershipComparison.new(
+      MembershipComparison.new(
         existing:   {
           'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
         },
@@ -59,7 +59,7 @@ describe Wikidata::MembershipComparison do
 
   context 'single existing P39, exact match' do
     let(:comparison) do
-      Wikidata::MembershipComparison.new(
+      MembershipComparison.new(
         existing:   {
           'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
         },
@@ -74,7 +74,7 @@ describe Wikidata::MembershipComparison do
 
   context 'multiple existing P39s, current exact match' do
     let(:comparison) do
-      Wikidata::MembershipComparison.new(
+      MembershipComparison.new(
         existing:   {
           'wds:1030-1DAA-3100' => { position: mp, term: term41, party: liberal, district: pontiac },
           'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
@@ -90,7 +90,7 @@ describe Wikidata::MembershipComparison do
 
   context 'multiple existing P39s, historic exact match' do
     let(:comparison) do
-      Wikidata::MembershipComparison.new(
+      MembershipComparison.new(
         existing:   {
           'wds:1030-1DAA-3100' => { position: mp, term: term41, party: liberal, district: pontiac },
           'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
@@ -106,7 +106,7 @@ describe Wikidata::MembershipComparison do
 
   context 'single existing P39, partial match' do
     let(:comparison) do
-      Wikidata::MembershipComparison.new(
+      MembershipComparison.new(
         existing:   {
           'wds:1030-1DAA-3102' => { position: mp, term: term42 },
         },
@@ -121,7 +121,7 @@ describe Wikidata::MembershipComparison do
 
   context 'single existing P39, conflict' do
     let(:comparison) do
-      Wikidata::MembershipComparison.new(
+      MembershipComparison.new(
         existing:   {
           'wds:1030-1DAA-3102' => { position: mp, term: term42, party: conservative },
         },
@@ -136,7 +136,7 @@ describe Wikidata::MembershipComparison do
 
   context 'single existing P39, different position' do
     let(:comparison) do
-      Wikidata::MembershipComparison.new(
+      MembershipComparison.new(
         existing:   {
           'wds:1030-1DAA-4100' => { position: speaker, term: term41, party: liberal, district: pontiac },
         },
@@ -151,7 +151,7 @@ describe Wikidata::MembershipComparison do
 
   context 'existing dated P39, within term' do
     let(:comparison) do
-      Wikidata::MembershipComparison.new(
+      MembershipComparison.new(
         existing:   {
           'wds:1030-1DAA-3103' => { position: mp, start: '2015-12-03', party: liberal, district: pontiac },
         },
@@ -166,7 +166,7 @@ describe Wikidata::MembershipComparison do
 
   context 'existing dated P39 between terms' do
     let(:comparison) do
-      Wikidata::MembershipComparison.new(
+      MembershipComparison.new(
         existing:   {
           'wds:1030-1DAA-3104' => { position: mp, start: '2015-10-18', party: liberal, district: pontiac },
         },
@@ -181,7 +181,7 @@ describe Wikidata::MembershipComparison do
 
   context 'existing dated P39 spanning terms' do
     let(:comparison) do
-      Wikidata::MembershipComparison.new(
+      MembershipComparison.new(
         existing:   {
           'wds:1030-1DAA-3105' => { position: mp, start: '2011-06-02', end: '2017-11-12', party: liberal,
                                     district: pontiac, },
