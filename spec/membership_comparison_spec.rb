@@ -243,4 +243,40 @@ describe MembershipComparison do
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
   end
+
+  context 'existing P39s, surrounding and including terms' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-0040' => { position: mp, term: term40, party: liberal, district: pontiac },
+          'wds:1030-1DAA-0041' => { position: mp, term: term41, party: liberal, district: pontiac },
+          'wds:1030-1DAA-0042' => { position: mp, term: term42, party: liberal, district: pontiac },
+        },
+        suggestion: suggestion41
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-0041']) }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
+  end
+
+  context 'existing P39s, surrounding and including dates' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-1040' => { position: mp, start: '2008-11-18', end: '2011-03-26', party: liberal,
+                                    district: pontiac, },
+          'wds:1030-1DAA-1041' => { position: mp, start: '2011-06-02', end: '2015-08-02', party: liberal,
+                                    district: pontiac, },
+          'wds:1030-1DAA-1042' => { position: mp, start: '2017-01-03', party: liberal, district: pontiac },
+        },
+        suggestion: suggestion41
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-1041']) }
+    specify { expect(comparison.conflicts).to be_empty }
+  end
 end
