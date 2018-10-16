@@ -19,9 +19,6 @@ class MembershipComparison
       @suggestion = suggestion
       @a = statement[field]
       @b = suggestion[field]
-
-      self.class.send(:alias_method, "statement_#{field}", :a)
-      self.class.send(:alias_method, "suggestion_#{field}", :b)
     end
 
     def exact?
