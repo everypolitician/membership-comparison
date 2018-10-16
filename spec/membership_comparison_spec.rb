@@ -15,6 +15,14 @@ describe MembershipComparison do
   let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
   let(:suggestion41) { { position: mp, term: term41, party: liberal, district: pontiac } }
 
+  after do |ex|
+    next unless ex.display_exception
+
+    puts
+    puts "statements: #{comparison.send(:existing).values}"
+    puts "suggestion: #{comparison.send(:suggestion)}"
+  end
+
   context 'no existing P39s' do
     let(:comparison) do
       MembershipComparison.new(
@@ -160,6 +168,9 @@ describe MembershipComparison do
       )
     end
 
+    # Statements: 2015-12-03 ->
+    # Term:       2015-12-03 ->
+
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3103']) }
     specify { expect(comparison.conflicts).to be_empty }
@@ -174,6 +185,9 @@ describe MembershipComparison do
         suggestion: suggestion
       )
     end
+
+    # Statements: 2015-10-18 ------------>
+    # Term:                  2015-12-03 ->
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3104']) }
@@ -191,6 +205,9 @@ describe MembershipComparison do
       )
     end
 
+    # Statements: 2011-06-02 ------------> 2017-11-12
+    # Term:                  2015-12-03 ->
+
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3105']) }
@@ -205,6 +222,9 @@ describe MembershipComparison do
         suggestion: suggestion41
       )
     end
+
+    # Statements:            2015-12-03 ->
+    # Term:       2011-06-02 ------------>
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
@@ -221,6 +241,9 @@ describe MembershipComparison do
         suggestion: suggestion41
       )
     end
+
+    # Statements: 2008-11-18 -> 2011-03-26 |                          | 2015-12-03 ->
+    # Term:                                | 2011-06-02 -> 2015-08-02 |
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
@@ -239,6 +262,9 @@ describe MembershipComparison do
       )
     end
 
+    # Statements: 2008-11-18 -> 2011-03-26 |                          | 2017-01-03 ->
+    # Term:                                | 2011-03-26 -> 2015-08-02 |
+
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
@@ -255,6 +281,9 @@ describe MembershipComparison do
         suggestion: suggestion41
       )
     end
+
+    # Statements: 2008-11-18 -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ->
+    # Term:                                | 2011-06-02 -> 2015-08-02 |
 
     specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-0041']) }
     specify { expect(comparison.partial_matches).to be_empty }
@@ -275,6 +304,9 @@ describe MembershipComparison do
       )
     end
 
+    # Statements: 2008-11-18 -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2017-01-03 ->
+    # Term:                                | 2011-06-02 -> 2015-08-02 |
+
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-1041']) }
     specify { expect(comparison.conflicts).to be_empty }
@@ -291,6 +323,10 @@ describe MembershipComparison do
       )
     end
 
+    # Statements: 2015-12-03 ------------> 2016-04-03 |
+    # Term:                  2015-12-03 ->            |
+    # Suggestion:                                     | 2017-01-03 ->
+
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty } # Currently fails
@@ -305,6 +341,10 @@ describe MembershipComparison do
         suggestion: { position: mp, term: term42, start: '2017-01-03', party: liberal, district: pontiac }
       )
     end
+
+    # Statements: 2015-12-03 -------------------------->
+    # Term:                  2015-12-03 --------------->
+    # Suggestion:                          2017-01-03 ->
 
     specify { expect(comparison.exact_matches).to be_empty } # Currently fails
     specify { expect(comparison.partial_matches).to be_empty }
