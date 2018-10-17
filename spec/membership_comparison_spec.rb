@@ -342,9 +342,9 @@ describe MembershipComparison do
       )
     end
 
-    # Statements: 2015-12-03 -------------------------->
-    # Term:                  2015-12-03 --------------->
-    # Suggestion:                          2017-01-03 ->
+    # Statements: 2015-12-03 ----------------------->
+    # Term:                  2015-12-03 ------------>
+    # Suggestion:                       2017-01-03 ->
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
