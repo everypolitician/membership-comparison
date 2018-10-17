@@ -329,7 +329,7 @@ describe MembershipComparison do
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
-    specify { expect(comparison.conflicts).to be_empty } # Currently fails
+    specify { expect(comparison.conflicts).to be_empty }
   end
 
   context 'member returns within term (previous still open)' do
@@ -346,7 +346,7 @@ describe MembershipComparison do
     # Term:                  2015-12-03 --------------->
     # Suggestion:                          2017-01-03 ->
 
-    specify { expect(comparison.exact_matches).to be_empty } # Currently fails
+    specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3107']) }
   end

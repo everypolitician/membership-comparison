@@ -7,16 +7,32 @@ class MembershipComparison
     self.field = :start
 
     def conflict?
-      term_started_during_statement? &&
-        (term_open? || term_ended_after_statement?)
+      !suggestion_started_after_statement_ended? && ((
+        term_started_during_statement? &&
+        (statement_open? || term_open? || term_ended_after_statement?)
+      ) || suggestion_started_after_statement_and_term?)
     end
 
     def partial?
-      term_started_during_statement? ||
-        (term_open? && term_started_after_statement?)
+      !suggestion_started_after_statement_ended? && (
+        term_started_during_statement? ||
+        (statement_open? && term_open? && term_started_after_statement?)
+      )
     end
 
     private
+
+    def suggestion_started_after_statement_ended?
+      return false unless statement_closed? && suggestion_started?
+
+      statement_end < suggestion_start
+    end
+
+    def suggestion_started_after_statement_and_term?
+      return false unless term_started? && suggestion_started? && statement_open?
+
+      statement_start <= term_start && term_start < suggestion_start
+    end
 
     def term_started_during_statement?
       return false unless statement_closed? && term_started?
@@ -60,6 +76,18 @@ class MembershipComparison
       !term_closed?
     end
 
+    def suggestion_started?
+      suggestion_start
+    end
+
+    def suggestion_closed?
+      suggestion_started? && suggestion_end
+    end
+
+    def suggestion_open?
+      !suggestion_closed?
+    end
+
     def statement_start
       statement[:start]
     end
@@ -74,6 +102,14 @@ class MembershipComparison
 
     def term_end
       suggestion.dig(:term, :end)
+    end
+
+    def suggestion_start
+      suggestion[:start]
+    end
+
+    def suggestion_end
+      suggestion[:end]
     end
   end
 end
