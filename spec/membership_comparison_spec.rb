@@ -9,6 +9,7 @@ describe MembershipComparison do
   let(:liberal) { { id: 'Q138345' } }
   let(:conservative) { { id: 'Q488523' } }
   let(:pontiac) { { id: 'Q3397734' } }
+  let(:term40) { { id: 'Q2816776', start: '2008-11-18', end: '2011-03-26' } }
   let(:term41) { { id: 'Q2816776', start: '2011-06-02', end: '2015-08-02' } }
   let(:term42) { { id: 'Q21157957', start: '2015-12-03' } }
   let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
@@ -193,5 +194,89 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3105']) }
+  end
+
+  context 'existing dated P39, later term' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3103' => { position: mp, start: '2015-12-03', party: liberal, district: pontiac },
+        },
+        suggestion: suggestion41
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
+  end
+
+  context 'existing P39s, surrounding terms' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3140' => { position: mp, term: term40, party: liberal, district: pontiac },
+          'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
+        },
+        suggestion: suggestion41
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
+  end
+
+  context 'existing P39s, surrounding dates' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3140' => { position: mp, start: '2008-11-18', end: '2011-03-26', party: liberal,
+                                    district: pontiac, },
+          'wds:1030-1DAA-3101' => { position: mp, start: '2017-01-03', party: liberal, district: pontiac },
+        },
+        suggestion: suggestion41
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
+  end
+
+  context 'existing P39s, surrounding and including terms' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-0040' => { position: mp, term: term40, party: liberal, district: pontiac },
+          'wds:1030-1DAA-0041' => { position: mp, term: term41, party: liberal, district: pontiac },
+          'wds:1030-1DAA-0042' => { position: mp, term: term42, party: liberal, district: pontiac },
+        },
+        suggestion: suggestion41
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-0041']) }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
+  end
+
+  context 'existing P39s, surrounding and including dates' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-1040' => { position: mp, start: '2008-11-18', end: '2011-03-26', party: liberal,
+                                    district: pontiac, },
+          'wds:1030-1DAA-1041' => { position: mp, start: '2011-06-02', end: '2015-08-02', party: liberal,
+                                    district: pontiac, },
+          'wds:1030-1DAA-1042' => { position: mp, start: '2017-01-03', party: liberal, district: pontiac },
+        },
+        suggestion: suggestion41
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-1041']) }
+    specify { expect(comparison.conflicts).to be_empty }
   end
 end
