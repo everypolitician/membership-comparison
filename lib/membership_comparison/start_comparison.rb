@@ -16,6 +16,10 @@ class MembershipComparison
       statement_end && statement_start < statement_end
     end
 
+    def statement_start
+      statement[:start]
+    end
+
     def statement_end
       statement[:end]
     end
