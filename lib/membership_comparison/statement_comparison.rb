@@ -15,8 +15,6 @@ class MembershipComparison
     def state
       return unless statement[:position] == suggestion[:position]
 
-      comparisons = field_comparisons
-
       if comparisons.all?(&:exact?)
         :exact
       elsif comparisons.any?(&:conflict?)
@@ -30,8 +28,8 @@ class MembershipComparison
 
     attr_reader :statement, :suggestion
 
-    def field_comparisons
-      [party_comparison, district_comparison, term_comparison, start_comparison]
+    def comparisons
+      @comparisons ||= [party_comparison, district_comparison, term_comparison, start_comparison]
     end
 
     def party_comparison
