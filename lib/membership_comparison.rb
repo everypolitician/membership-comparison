@@ -20,6 +20,12 @@ class MembershipComparison
     classified.fetch(:conflict, [])
   end
 
+  def problems
+    comparisons.each_with_object({}) do |(id, comparison), memo|
+      memo[id] = comparison.conflicts
+    end
+  end
+
   private
 
   attr_reader :existing, :suggestion

@@ -24,6 +24,10 @@ class MembershipComparison
       end
     end
 
+    def conflicts
+      comparisons.map(&:conflict).compact
+    end
+
     private
 
     attr_reader :statement, :suggestion
