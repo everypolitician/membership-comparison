@@ -42,7 +42,16 @@ class MembershipComparison
 
   def comparisons
     @comparisons ||= existing.each_with_object({}) do |(id, statement), memo|
-      memo[id] = StatementComparison.new(statement: statement, suggestion: suggestion)
+      memo[id] = StatementComparison.new(
+        statement:  statement,
+        suggestion: suggestion,
+        options:    options
+      )
     end
+  end
+
+  def options
+    {
+    }
   end
 end

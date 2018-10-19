@@ -2,7 +2,7 @@
 
 class MembershipComparison
   class FieldComparison
-    attr_reader :statement, :suggestion
+    attr_reader :statement, :suggestion, :options
 
     class << self
       attr_writer :field
@@ -12,9 +12,10 @@ class MembershipComparison
       @field || raise(NotImplementedError)
     end
 
-    def initialize(statement:, suggestion:)
+    def initialize(statement:, suggestion:, options:)
       @statement = statement
       @suggestion = suggestion
+      @options = options
     end
 
     def exact?
