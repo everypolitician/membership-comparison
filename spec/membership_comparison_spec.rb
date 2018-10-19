@@ -154,6 +154,23 @@ describe MembershipComparison do
     specify { expect(comparison.problems['wds:1030-1DAA-3102']).to match_array(['party conflict']) }
   end
 
+  context 'single existing P39, party conflict but not required' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:      {
+          'wds:1030-1DAA-3102' => { position: mp, term: term42, party: conservative, district: pontiac },
+        },
+        suggestion:    suggestion, # party: liberal
+        require_party: false
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3102']) }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3102']).to be_empty }
+  end
+
   context 'single existing P39, district conflict' do
     let(:comparison) do
       MembershipComparison.new(
