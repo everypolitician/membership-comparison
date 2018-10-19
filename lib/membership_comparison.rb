@@ -3,9 +3,10 @@
 require_relative './membership_comparison/statement_comparison'
 
 class MembershipComparison
-  def initialize(existing:, suggestion:)
+  def initialize(existing:, suggestion:, require_party: true)
     @existing = existing
     @suggestion = suggestion
+    @require_party = require_party
   end
 
   def exact_matches
@@ -28,7 +29,7 @@ class MembershipComparison
 
   private
 
-  attr_reader :existing, :suggestion
+  attr_reader :existing, :suggestion, :require_party
 
   def classified
     @classified ||= comparisons.each_with_object({}) do |(id, comparison), memo|
@@ -42,7 +43,17 @@ class MembershipComparison
 
   def comparisons
     @comparisons ||= existing.each_with_object({}) do |(id, statement), memo|
-      memo[id] = StatementComparison.new(statement: statement, suggestion: suggestion)
+      memo[id] = StatementComparison.new(
+        statement:  statement,
+        suggestion: suggestion,
+        options:    options
+      )
     end
+  end
+
+  def options
+    {
+      require_party: require_party,
+    }
   end
 end
