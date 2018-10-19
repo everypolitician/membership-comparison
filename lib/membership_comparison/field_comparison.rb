@@ -2,7 +2,7 @@
 
 class MembershipComparison
   class FieldComparison
-    attr_reader :statement, :suggestion, :a, :b
+    attr_reader :statement, :suggestion
 
     class << self
       attr_writer :field
@@ -13,12 +13,8 @@ class MembershipComparison
     end
 
     def initialize(statement:, suggestion:)
-      field = self.class.field
-
       @statement = statement
       @suggestion = suggestion
-      @a = statement[field]
-      @b = suggestion[field]
     end
 
     def exact?
@@ -36,5 +32,17 @@ class MembershipComparison
     def partial?
       !exact? && !conflict?
     end
+
+    private
+
+    def statement_value
+      statement[self.class.field]
+    end
+    alias a statement_value
+
+    def suggestion_value
+      suggestion[self.class.field]
+    end
+    alias b suggestion_value
   end
 end
