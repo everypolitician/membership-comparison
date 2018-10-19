@@ -20,19 +20,29 @@ class MembershipComparison
     classified.fetch(:conflict, [])
   end
 
+  def problems
+    comparisons.each_with_object({}) do |(id, comparison), memo|
+      memo[id] = comparison.conflicts
+    end
+  end
+
   private
 
   attr_reader :existing, :suggestion
 
   def classified
-    @classified ||= existing.each_with_object({}) do |(id, statement), h|
-      comparison = StatementComparison.new(statement:  statement,
-                                           suggestion: suggestion)
+    @classified ||= comparisons.each_with_object({}) do |(id, comparison), memo|
       state = comparison.state
       next unless state
 
-      h[state] ||= []
-      h[state] << id
+      memo[state] ||= []
+      memo[state] << id
+    end
+  end
+
+  def comparisons
+    @comparisons ||= existing.each_with_object({}) do |(id, statement), memo|
+      memo[id] = StatementComparison.new(statement: statement, suggestion: suggestion)
     end
   end
 end

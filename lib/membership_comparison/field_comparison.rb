@@ -25,8 +25,12 @@ class MembershipComparison
       a == b
     end
 
+    def conflict
+      "#{self.class.field} conflict" if a && b && a != b
+    end
+
     def conflict?
-      a && b && a != b
+      !conflict.nil?
     end
 
     def partial?

@@ -9,6 +9,7 @@ describe MembershipComparison do
   let(:liberal) { { id: 'Q138345' } }
   let(:conservative) { { id: 'Q488523' } }
   let(:pontiac) { { id: 'Q3397734' } }
+  let(:quebec) { { id: 'Q3414825' } }
   let(:term40) { { id: 'Q2816776', start: '2008-11-18', end: '2011-03-26' } }
   let(:term41) { { id: 'Q2816776', start: '2011-06-02', end: '2015-08-02' } }
   let(:term42) { { id: 'Q21157957', start: '2015-12-03' } }
@@ -34,6 +35,7 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems).to be_empty }
   end
 
   context 'single existing P39, previous term' do
@@ -49,6 +51,7 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3100']).to be_empty }
   end
 
   context 'single existing P39, following term' do
@@ -64,6 +67,7 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3101']).to be_empty }
   end
 
   context 'single existing P39, exact match' do
@@ -79,6 +83,7 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3101']) }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3101']).to be_empty }
   end
 
   context 'multiple existing P39s, current exact match' do
@@ -95,6 +100,8 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3101']) }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3100']).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3101']).to be_empty }
   end
 
   context 'multiple existing P39s, historic exact match' do
@@ -111,6 +118,8 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3100']) }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3100']).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3101']).to be_empty }
   end
 
   context 'single existing P39, partial match' do
@@ -126,21 +135,39 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3102']) }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3102']).to be_empty }
   end
 
-  context 'single existing P39, conflict' do
+  context 'single existing P39, party conflict' do
     let(:comparison) do
       MembershipComparison.new(
         existing:   {
           'wds:1030-1DAA-3102' => { position: mp, term: term42, party: conservative },
         },
-        suggestion: suggestion
+        suggestion: suggestion # party: liberal
       )
     end
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3102']) }
+    specify { expect(comparison.problems['wds:1030-1DAA-3102']).to match_array(['party conflict']) }
+  end
+
+  context 'single existing P39, district conflict' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3102' => { position: mp, term: term42, party: liberal, district: quebec },
+        },
+        suggestion: suggestion # district: pontiac
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3102']) }
+    specify { expect(comparison.problems['wds:1030-1DAA-3102']).to match_array(['district conflict']) }
   end
 
   context 'single existing P39, different position' do
@@ -156,6 +183,7 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-4100']).to be_empty }
   end
 
   context 'existing dated P39, within term' do
@@ -174,6 +202,7 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3103']) }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3103']).to be_empty }
   end
 
   context 'existing dated P39 between terms' do
@@ -192,6 +221,7 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3104']) }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3104']).to be_empty }
   end
 
   context 'existing dated P39 spanning terms' do
@@ -211,6 +241,7 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3105']) }
+    specify { expect(comparison.problems['wds:1030-1DAA-3105']).to match_array(['spanning terms']) }
   end
 
   context 'existing dated P39, later term' do
@@ -229,6 +260,7 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3103']).to be_empty }
   end
 
   context 'existing P39s, surrounding terms' do
@@ -248,6 +280,8 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3140']).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3101']).to be_empty }
   end
 
   context 'existing P39s, surrounding dates' do
@@ -268,6 +302,8 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3140']).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3101']).to be_empty }
   end
 
   context 'existing P39s, surrounding and including terms' do
@@ -288,6 +324,9 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-0041']) }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-0040']).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-0041']).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-0042']).to be_empty }
   end
 
   context 'existing P39s, surrounding and including dates' do
@@ -310,6 +349,9 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-1041']) }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-1040']).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-1041']).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-1042']).to be_empty }
   end
 
   context 'member returns within term' do
@@ -330,6 +372,7 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3106']).to be_empty }
   end
 
   context 'member returns within term (previous still open)' do
@@ -349,5 +392,6 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3107']) }
+    specify { expect(comparison.problems['wds:1030-1DAA-3107']).to match_array(['previous term still open']) }
   end
 end
