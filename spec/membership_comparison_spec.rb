@@ -22,6 +22,7 @@ describe MembershipComparison do
     puts
     puts "statements: #{comparison.send(:existing).values}"
     puts "suggestion: #{comparison.send(:suggestion)}"
+    puts "field_states: #{comparison.field_states}"
   end
 
   context 'no existing P39s' do

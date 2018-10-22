@@ -29,6 +29,12 @@ class MembershipComparison
       comparisons.map(&:conflict).compact
     end
 
+    def field_states
+      comparisons.each_with_object({}) do |comparison, memo|
+        memo[comparison.class.field] = comparison.state
+      end
+    end
+
     private
 
     attr_reader :statement, :suggestion, :options

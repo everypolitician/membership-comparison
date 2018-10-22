@@ -27,6 +27,12 @@ class MembershipComparison
     end
   end
 
+  def field_states
+    comparisons.each_with_object({}) do |(id, comparison), memo|
+      memo[id] = comparison.field_states
+    end
+  end
+
   private
 
   attr_reader :existing, :suggestion, :require_party
