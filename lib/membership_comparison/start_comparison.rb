@@ -14,14 +14,18 @@ class MembershipComparison
       end
     end
 
-    def partial?
+    private
+
+    def _conflict?
+      spanning_terms? || previous_term_still_open?
+    end
+
+    def _partial?
       !suggestion_started_after_statement_ended? && (
         term_started_during_statement? ||
         (statement_open? && term_open? && term_started_after_statement?)
       )
     end
-
-    private
 
     def spanning_terms?
       !suggestion_started_after_statement_ended? &&

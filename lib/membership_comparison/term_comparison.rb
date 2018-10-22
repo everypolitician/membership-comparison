@@ -6,11 +6,13 @@ class MembershipComparison
   class TermComparison < FieldComparison
     self.field = :term
 
-    def conflict
-      nil
+    private
+
+    def _conflict?
+      false
     end
 
-    def partial?
+    def _partial?
       false
     end
   end

@@ -18,23 +18,44 @@ class MembershipComparison
       @options = options
     end
 
-    def exact?
-      a == b
+    def state
+      @state = (
+        if _exact? then :exact
+        elsif _conflict? then :conflict
+        elsif _partial? then :partial
+        end
+      )
     end
 
-    def conflict
-      "#{self.class.field} conflict" if a && b && a != b
+    def exact?
+      state == :exact
     end
 
     def conflict?
-      !conflict.nil?
+      state == :conflict
     end
 
     def partial?
-      !exact? && !conflict?
+      state == :partial
+    end
+
+    def conflict
+      "#{self.class.field} conflict" if conflict?
     end
 
     private
+
+    def _exact?
+      a == b
+    end
+
+    def _conflict?
+      a && b && a != b
+    end
+
+    def _partial?
+      !_exact? && !_conflict?
+    end
 
     def statement_value
       statement[self.class.field]

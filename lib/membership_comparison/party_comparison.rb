@@ -6,15 +6,17 @@ class MembershipComparison
   class PartyComparison < FieldComparison
     self.field = :party
 
-    def exact?
+    private
+
+    def _exact?
       !options[:require_party] || super
     end
 
-    def conflict
-      super if options[:require_party]
+    def _conflict?
+      options[:require_party] && super
     end
 
-    def partial?
+    def _partial?
       options[:require_party] && super
     end
   end
