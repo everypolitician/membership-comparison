@@ -411,4 +411,27 @@ describe MembershipComparison do
     specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3107']) }
     specify { expect(comparison.problems['wds:1030-1DAA-3107']).to match_array(['previous term still open']) }
   end
+
+  xcontext 'existing statement, started during a term' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3107' => { position: mp, term: term42, start: '2016-03-03', party: liberal,
+                                    district: pontiac, },
+        },
+        suggestion: suggestion
+      )
+    end
+
+    # Statements:            2016-03-03 ->
+    # Term:       2015-12-03 ------------>
+    # Suggestion: 2015-12-03 ------------>
+
+    specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3107']) } # Currently fails
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3107']) } # or should it be a conflict?
+    specify do # with problem message something like...?
+      expect(comparison.problems['wds:1030-1DAA-3107']).to match_array(['existing statement started after term'])
+    end
+  end
 end
