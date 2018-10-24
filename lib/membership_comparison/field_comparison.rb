@@ -46,7 +46,7 @@ class MembershipComparison
     private
 
     def _exact?
-      a == b
+      a == b || !b
     end
 
     def _conflict?
