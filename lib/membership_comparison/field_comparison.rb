@@ -58,12 +58,18 @@ class MembershipComparison
     end
 
     def statement_value
-      statement[self.class.field]
+      value = statement[self.class.field]
+      return value[:id] if value.is_a?(Hash)
+
+      value
     end
     alias a statement_value
 
     def suggestion_value
-      suggestion[self.class.field]
+      value = suggestion[self.class.field]
+      return value[:id] if value.is_a?(Hash)
+
+      value
     end
     alias b suggestion_value
   end
