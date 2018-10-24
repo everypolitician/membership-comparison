@@ -3,10 +3,9 @@
 require_relative './membership_comparison/statement_comparison'
 
 class MembershipComparison
-  def initialize(existing:, suggestion:, require_party: true)
+  def initialize(existing:, suggestion:)
     @existing = existing
     @suggestion = suggestion
-    @require_party = require_party
   end
 
   def exact_matches
@@ -27,9 +26,15 @@ class MembershipComparison
     end
   end
 
+  def field_states
+    comparisons.each_with_object({}) do |(id, comparison), memo|
+      memo[id] = comparison.field_states
+    end
+  end
+
   private
 
-  attr_reader :existing, :suggestion, :require_party
+  attr_reader :existing, :suggestion
 
   def classified
     @classified ||= comparisons.each_with_object({}) do |(id, comparison), memo|
@@ -52,8 +57,6 @@ class MembershipComparison
   end
 
   def options
-    {
-      require_party: require_party,
-    }
+    {}
   end
 end

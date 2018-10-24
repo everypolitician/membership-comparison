@@ -10,11 +10,12 @@ describe MembershipComparison do
   let(:conservative) { { id: 'Q488523' } }
   let(:pontiac) { { id: 'Q3397734' } }
   let(:quebec) { { id: 'Q3414825' } }
-  let(:term40) { { id: 'Q2816776', start: '2008-11-18', end: '2011-03-26' } }
+  let(:term40) { { id: 'Q2816734', start: '2008-11-18', end: '2011-03-26' } }
   let(:term41) { { id: 'Q2816776', start: '2011-06-02', end: '2015-08-02' } }
   let(:term42) { { id: 'Q21157957', start: '2015-12-03' } }
   let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
   let(:suggestion41) { { position: mp, term: term41, party: liberal, district: pontiac } }
+  let(:suggestion_without_party) { { position: mp, term: term42, party: { id: nil }, district: pontiac } }
 
   after do |ex|
     next unless ex.display_exception
@@ -22,6 +23,7 @@ describe MembershipComparison do
     puts
     puts "statements: #{comparison.send(:existing).values}"
     puts "suggestion: #{comparison.send(:suggestion)}"
+    puts "field_states: #{comparison.field_states}"
   end
 
   context 'no existing P39s' do
@@ -154,23 +156,6 @@ describe MembershipComparison do
     specify { expect(comparison.problems['wds:1030-1DAA-3102']).to match_array(['party conflict']) }
   end
 
-  context 'single existing P39, party conflict but not required' do
-    let(:comparison) do
-      MembershipComparison.new(
-        existing:      {
-          'wds:1030-1DAA-3102' => { position: mp, term: term42, party: conservative, district: pontiac },
-        },
-        suggestion:    suggestion, # party: liberal
-        require_party: false
-      )
-    end
-
-    specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3102']) }
-    specify { expect(comparison.partial_matches).to be_empty }
-    specify { expect(comparison.conflicts).to be_empty }
-    specify { expect(comparison.problems['wds:1030-1DAA-3102']).to be_empty }
-  end
-
   context 'single existing P39, district conflict' do
     let(:comparison) do
       MembershipComparison.new(
@@ -201,6 +186,22 @@ describe MembershipComparison do
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
     specify { expect(comparison.problems['wds:1030-1DAA-4100']).to be_empty }
+  end
+
+  context 'single existing P39, without suggested party' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3102' => { position: mp, term: term42, party: conservative, district: pontiac },
+        },
+        suggestion: suggestion_without_party
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3102']) }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3102']).to be_empty }
   end
 
   context 'existing dated P39, within term' do
@@ -410,5 +411,26 @@ describe MembershipComparison do
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3107']) }
     specify { expect(comparison.problems['wds:1030-1DAA-3107']).to match_array(['previous term still open']) }
+  end
+
+  context 'existing statement, started during a term' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3107' => { position: mp, term: term42, start: '2016-03-03', party: liberal,
+                                    district: pontiac, },
+        },
+        suggestion: suggestion
+      )
+    end
+
+    # Statements:            2016-03-03 ->
+    # Term:       2015-12-03 ------------>
+    # Suggestion: 2015-12-03 ------------>
+
+    specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3107']) }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3107']).to be_empty }
   end
 end
