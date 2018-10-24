@@ -10,7 +10,7 @@ describe MembershipComparison do
   let(:conservative) { { id: 'Q488523' } }
   let(:pontiac) { { id: 'Q3397734' } }
   let(:quebec) { { id: 'Q3414825' } }
-  let(:term40) { { id: 'Q2816776', start: '2008-11-18', end: '2011-03-26' } }
+  let(:term40) { { id: 'Q2816734', start: '2008-11-18', end: '2011-03-26' } }
   let(:term41) { { id: 'Q2816776', start: '2011-06-02', end: '2015-08-02' } }
   let(:term42) { { id: 'Q21157957', start: '2015-12-03' } }
   let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
