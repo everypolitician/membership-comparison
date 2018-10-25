@@ -40,6 +40,24 @@ describe MembershipComparison do
     specify { expect(comparison.problems).to be_empty }
   end
 
+  context 'existing base P39s' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3101' => { position: mp },
+          'wds:1030-1DAA-3102' => { position: mp, term: { id: nil }, party: { id: nil }, district: { id: nil } },
+        },
+        suggestion: suggestion
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3101', 'wds:1030-1DAA-3102']) }
+    specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3101']).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-3102']).to be_empty }
+  end
+
   context 'single existing P39, previous term' do
     let(:comparison) do
       MembershipComparison.new(
