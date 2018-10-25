@@ -23,12 +23,17 @@ class MembershipComparison
         if _exact? then :exact
         elsif _conflict? then :conflict
         elsif _partial? then :partial
+        else :ignore
         end
       )
     end
 
     def exact?
       state == :exact
+    end
+
+    def ignore?
+      state == :ignore
     end
 
     def conflict?

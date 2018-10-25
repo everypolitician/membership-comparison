@@ -17,6 +17,8 @@ class MembershipComparison
 
       if comparisons.all?(&:exact?)
         :exact
+      elsif comparisons.any?(&:ignore?)
+        :ignore
       elsif comparisons.any?(&:conflict?)
         :conflict
       elsif comparisons.any?(&:partial?)
