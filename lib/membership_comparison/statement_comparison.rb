@@ -27,6 +27,8 @@ class MembershipComparison
     end
 
     def conflicts
+      return [] unless state == :conflict
+
       comparisons.map(&:conflict).compact
     end
 
