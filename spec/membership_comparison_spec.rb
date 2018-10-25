@@ -40,7 +40,7 @@ describe MembershipComparison do
     specify { expect(comparison.problems).to be_empty }
   end
 
-  xcontext 'existing base P39s' do
+  context 'existing base P39s' do
     let(:comparison) do
       MembershipComparison.new(
         existing:   {
@@ -52,7 +52,7 @@ describe MembershipComparison do
     end
 
     specify { expect(comparison.exact_matches).to be_empty }
-    specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3101', 'wds:1030-1DAA-3102']) } # Currently fails
+    specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3101', 'wds:1030-1DAA-3102']) }
     specify { expect(comparison.conflicts).to be_empty }
     specify { expect(comparison.problems['wds:1030-1DAA-3101']).to be_empty }
     specify { expect(comparison.problems['wds:1030-1DAA-3102']).to be_empty }
