@@ -69,7 +69,7 @@ describe MembershipComparison do
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
-    specify { expect(comparison.problems['wds:1030-1DAA-3100']).to match_array(['district conflict']) }
+    specify { expect(comparison.problems['wds:1030-1DAA-3100']).to be_empty }
   end
 
   context 'single existing P39, following term' do
