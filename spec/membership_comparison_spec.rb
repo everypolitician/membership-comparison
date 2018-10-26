@@ -276,7 +276,7 @@ describe MembershipComparison do
     specify { expect(comparison.problems['wds:1030-1DAA-3104']).to be_empty }
   end
 
-  context 'existing dated P39, started before previous term ended' do
+  xcontext 'existing dated P39, started before previous term ended' do
     let(:comparison) do
       MembershipComparison.new(
         existing:   {
@@ -291,8 +291,8 @@ describe MembershipComparison do
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
-    specify { expect(comparison.conflicts).to be_empty }
-    specify { expect(comparison.problems['wds:1030-1DAA-3104']).to be_empty }
+    specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3104']) }
+    specify { expect(comparison.problems['wds:1030-1DAA-3104']).to match_array(['previous term still open']) }
   end
 
   context 'existing dated P39 spanning terms' do
