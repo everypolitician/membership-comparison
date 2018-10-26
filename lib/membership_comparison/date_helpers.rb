@@ -35,7 +35,7 @@ class MembershipComparison
     end
 
     def started_before_end_of_previous_term?
-      return false unless eopt && statement_started?
+      return false unless eopt && statement_open?
 
       statement_start < eopt
     end

@@ -36,7 +36,7 @@ class MembershipComparison
 
     def previous_term_still_open?
       !suggestion_started_after_statement_ended? &&
-        suggestion_started_after_statement_and_term?
+        (suggestion_started_after_statement_and_term? || started_before_end_of_previous_term?)
     end
   end
 end
