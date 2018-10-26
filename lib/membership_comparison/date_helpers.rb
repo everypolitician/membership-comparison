@@ -40,6 +40,12 @@ class MembershipComparison
       statement_start < eopt
     end
 
+    def ended_before_end_of_previous_term?
+      return false unless eopt && statement_closed?
+
+      statement_end <= eopt
+    end
+
     def no_term_or_statement_start?
       !statement_value && !statement_started?
     end

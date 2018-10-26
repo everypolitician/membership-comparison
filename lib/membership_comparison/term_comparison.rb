@@ -24,7 +24,7 @@ class MembershipComparison
     end
 
     def _partial?
-      !(started_before_end_of_previous_term? || suggestion_started_after_statement_ended?) &&
+      !(ended_before_end_of_previous_term? || suggestion_started_after_statement_ended?) &&
         (no_term_or_statement_start? || term_started_during_statement? || term_started_after_statement?)
     end
 
