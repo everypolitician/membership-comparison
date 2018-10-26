@@ -24,11 +24,8 @@ class MembershipComparison
     end
 
     def _partial?
-      !suggestion_started_after_statement_ended? && (
-        no_term_or_statement_start? ||
-        term_started_during_statement? ||
-        (statement_open? && term_open? && term_started_after_statement?)
-      )
+      !(started_before_end_of_previous_term? || suggestion_started_after_statement_ended?) &&
+        (no_term_or_statement_start? || term_started_during_statement? || term_started_after_statement?)
     end
 
     def spanning_terms?
@@ -40,10 +37,6 @@ class MembershipComparison
     def previous_term_still_open?
       !suggestion_started_after_statement_ended? &&
         suggestion_started_after_statement_and_term?
-    end
-
-    def no_term_or_statement_start?
-      !statement_value && !statement_started?
     end
   end
 end

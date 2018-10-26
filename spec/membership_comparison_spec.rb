@@ -276,7 +276,7 @@ describe MembershipComparison do
     specify { expect(comparison.problems['wds:1030-1DAA-3104']).to be_empty }
   end
 
-  xcontext 'existing dated P39, started before previous term ended' do
+  context 'existing dated P39, started before previous term ended' do
     let(:comparison) do
       MembershipComparison.new(
         existing:   {
