@@ -10,9 +10,9 @@ describe MembershipComparison do
   let(:conservative) { { id: 'Q488523' } }
   let(:pontiac) { { id: 'Q3397734' } }
   let(:quebec) { { id: 'Q3414825' } }
-  let(:term40) { { id: 'Q2816734', start: '2008-11-18', end: '2011-03-26' } }
-  let(:term41) { { id: 'Q2816776', start: '2011-06-02', end: '2015-08-02' } }
-  let(:term42) { { id: 'Q21157957', start: '2015-12-03' } }
+  let(:term40) { { id: 'Q2816734', eopt: '2008-09-07', start: '2008-11-18', end: '2011-03-26', sont: '2011-06-02' } }
+  let(:term41) { { id: 'Q2816776', eopt: '2011-03-26', start: '2011-06-02', end: '2015-08-02', sont: '2015-12-03' } }
+  let(:term42) { { id: 'Q21157957', eopt: '2015-08-02', start: '2015-12-03' } }
   let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
   let(:suggestion41) { { position: mp, term: term41, party: liberal, district: pontiac } }
   let(:suggestion_without_party) { { position: mp, term: term42, party: { id: nil }, district: pontiac } }
@@ -248,8 +248,8 @@ describe MembershipComparison do
       )
     end
 
-    # Statements: 2015-12-03 ->
-    # Term:       2015-12-03 ->
+    # Statements:                 2015-12-03 ->
+    # Term:       -> 2015-08-02 | 2015-12-03 ->
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3103']) }
@@ -267,8 +267,8 @@ describe MembershipComparison do
       )
     end
 
-    # Statements: 2015-10-18 ------------>
-    # Term:                  2015-12-03 ->
+    # Statements:                 2015-10-18 ------------>
+    # Term:       -> 2015-08-02 |            2015-12-03 ->
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-3104']) }
@@ -287,8 +287,8 @@ describe MembershipComparison do
       )
     end
 
-    # Statements: 2011-06-02 ------------> 2017-11-12
-    # Term:                  2015-12-03 ->
+    # Statements: 2011-06-02 ----------------------------> 2017-11-12
+    # Term:                  -> 2015-12-03 | 2015-12-03 ->
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
@@ -306,8 +306,8 @@ describe MembershipComparison do
       )
     end
 
-    # Statements:            2015-12-03 ->
-    # Term:       2011-06-02 ------------>
+    # Statements:                                            2015-12-03 ->
+    # Term:       -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ->
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
@@ -327,7 +327,7 @@ describe MembershipComparison do
     end
 
     # Statements: 2008-11-18 -> 2011-03-26 |                          | 2015-12-03 ->
-    # Term:                                | 2011-06-02 -> 2015-08-02 |
+    # Term:                  -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ->
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
@@ -348,8 +348,8 @@ describe MembershipComparison do
       )
     end
 
-    # Statements: 2008-11-18 -> 2011-03-26 |                          | 2017-01-03 ->
-    # Term:                                | 2011-03-26 -> 2015-08-02 |
+    # Statements: 2008-11-18 -> 2011-03-26 |                          |            2017-01-03 ->
+    # Term:                  -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ------------>
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
@@ -371,7 +371,7 @@ describe MembershipComparison do
     end
 
     # Statements: 2008-11-18 -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ->
-    # Term:                                | 2011-06-02 -> 2015-08-02 |
+    # Term:                  -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ->
 
     specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-0041']) }
     specify { expect(comparison.partial_matches).to be_empty }
@@ -395,8 +395,8 @@ describe MembershipComparison do
       )
     end
 
-    # Statements: 2008-11-18 -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2017-01-03 ->
-    # Term:                                | 2011-06-02 -> 2015-08-02 |
+    # Statements: 2008-11-18 -> 2011-03-26 | 2011-06-02 -> 2015-08-02 |            2017-01-03 ->
+    # Term:                  -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ------------>
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to match_array(['wds:1030-1DAA-1041']) }
@@ -417,9 +417,9 @@ describe MembershipComparison do
       )
     end
 
-    # Statements: 2015-12-03 ------------> 2016-04-03 |
-    # Term:                  2015-12-03 ->            |
-    # Suggestion:                                     | 2017-01-03 ->
+    # Statements:                 2015-12-03 -> 2016-04-03 |
+    # Term:       -> 2015-08-02 | 2015-12-03 ->            |
+    # Suggestion:                                          | 2017-01-03 ->
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
@@ -437,9 +437,9 @@ describe MembershipComparison do
       )
     end
 
-    # Statements: 2015-12-03 ----------------------->
-    # Term:                  2015-12-03 ------------>
-    # Suggestion:                       2017-01-03 ->
+    # Statements:                 2015-12-03 ------------>
+    # Term:       -> 2015-08-02 | 2015-12-03 ------------>
+    # Suggestion:                            2017-01-03 ->
 
     specify { expect(comparison.exact_matches).to be_empty }
     specify { expect(comparison.partial_matches).to be_empty }
@@ -458,9 +458,9 @@ describe MembershipComparison do
       )
     end
 
-    # Statements:            2016-03-03 ->
-    # Term:       2015-12-03 ------------>
-    # Suggestion: 2015-12-03 ------------>
+    # Statements:                            2016-03-03 ->
+    # Term:       -> 2015-08-02 | 2015-12-03 ------------>
+    # Suggestion:                 2015-12-03 ------------>
 
     specify { expect(comparison.exact_matches).to match_array(['wds:1030-1DAA-3107']) }
     specify { expect(comparison.partial_matches).to be_empty }
