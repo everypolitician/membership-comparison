@@ -34,6 +34,16 @@ class MembershipComparison
       statement_start <= term_start
     end
 
+    def started_before_end_of_previous_term?
+      return false unless eopt && statement_started?
+
+      statement_start < eopt
+    end
+
+    def no_term_or_statement_start?
+      !statement_value && !statement_started?
+    end
+
     def statement_started?
       statement_start
     end
@@ -84,6 +94,14 @@ class MembershipComparison
 
     def term_end
       suggestion.dig(:term, :end)
+    end
+
+    def eopt
+      suggestion.dig(:term, :eopt)
+    end
+
+    def sont
+      suggestion.dig(:term, :sont)
     end
 
     def suggestion_start
