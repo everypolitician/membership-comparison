@@ -276,25 +276,6 @@ describe MembershipComparison do
     specify { expect(comparison.problems['wds:1030-1DAA-3104']).to be_empty }
   end
 
-  context 'existing dated P39, started before previous term ended' do
-    let(:comparison) do
-      MembershipComparison.new(
-        existing:   {
-          'wds:1030-1DAA-3104' => { position: mp, start: '2015-03-10', party: liberal, district: pontiac },
-        },
-        suggestion: suggestion
-      )
-    end
-
-    # Statements: 2015-03-10 ------------> |
-    # Term:                  -> 2015-08-02 | 2015-12-03 ->
-
-    specify { expect(comparison.exact_matches).to be_empty }
-    specify { expect(comparison.partial_matches).to be_empty } # Currently fails
-    specify { expect(comparison.conflicts).to be_empty }
-    specify { expect(comparison.problems['wds:1030-1DAA-3104']).to be_empty }
-  end
-
   context 'existing dated P39 spanning terms' do
     let(:comparison) do
       MembershipComparison.new(
@@ -464,6 +445,25 @@ describe MembershipComparison do
     specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3107']) }
     specify { expect(comparison.problems['wds:1030-1DAA-3107']).to match_array(['previous term still open']) }
+  end
+
+  context 'existing dated P39, started before previous term ended' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-3104' => { position: mp, start: '2015-03-10', party: liberal, district: pontiac },
+        },
+        suggestion: suggestion
+      )
+    end
+
+    # Statements: 2015-03-10 ------------> |
+    # Term:                  -> 2015-08-02 | 2015-12-03 ->
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-3104']) }
+    specify { expect(comparison.problems['wds:1030-1DAA-3104']).to match_array(['previous term still open']) }
   end
 
   context 'existing statement, started during a term' do

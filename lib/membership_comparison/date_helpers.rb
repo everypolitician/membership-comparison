@@ -35,9 +35,15 @@ class MembershipComparison
     end
 
     def started_before_end_of_previous_term?
-      return false unless eopt && statement_started?
+      return false unless eopt && statement_open?
 
       statement_start < eopt
+    end
+
+    def ended_before_end_of_previous_term?
+      return false unless eopt && statement_closed?
+
+      statement_end <= eopt
     end
 
     def no_term_or_statement_start?
@@ -53,7 +59,7 @@ class MembershipComparison
     end
 
     def statement_open?
-      !statement_closed?
+      statement_start && !statement_closed?
     end
 
     def term_started?
@@ -65,7 +71,7 @@ class MembershipComparison
     end
 
     def term_open?
-      !term_closed?
+      term_start && !term_closed?
     end
 
     def suggestion_started?
@@ -77,7 +83,7 @@ class MembershipComparison
     end
 
     def suggestion_open?
-      !suggestion_closed?
+      suggestion_start && !suggestion_closed?
     end
 
     def statement_start
