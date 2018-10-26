@@ -290,7 +290,7 @@ describe MembershipComparison do
     # Term:                  -> 2015-08-02 | 2015-12-03 ->
 
     specify { expect(comparison.exact_matches).to be_empty }
-    specify { expect(comparison.partial_matches).to be_empty } # Currently fails
+    specify { expect(comparison.partial_matches).to be_empty }
     specify { expect(comparison.conflicts).to be_empty }
     specify { expect(comparison.problems['wds:1030-1DAA-3104']).to be_empty }
   end
