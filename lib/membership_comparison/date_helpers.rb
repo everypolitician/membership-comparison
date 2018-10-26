@@ -53,7 +53,7 @@ class MembershipComparison
     end
 
     def statement_open?
-      !statement_closed?
+      statement_start && !statement_closed?
     end
 
     def term_started?
@@ -65,7 +65,7 @@ class MembershipComparison
     end
 
     def term_open?
-      !term_closed?
+      term_start && !term_closed?
     end
 
     def suggestion_started?
@@ -77,7 +77,7 @@ class MembershipComparison
     end
 
     def suggestion_open?
-      !suggestion_closed?
+      suggestion_start && !suggestion_closed?
     end
 
     def statement_start
