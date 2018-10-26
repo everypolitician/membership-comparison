@@ -31,7 +31,7 @@ class MembershipComparison
     def spanning_terms?
       !suggestion_started_after_statement_ended? &&
         term_started_during_statement? &&
-        (statement_open? || term_open? || term_ended_after_statement?)
+        (term_open? || term_ended_after_statement?)
     end
 
     def previous_term_still_open?
