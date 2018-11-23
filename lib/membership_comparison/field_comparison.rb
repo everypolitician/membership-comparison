@@ -19,13 +19,13 @@ class MembershipComparison
     end
 
     def state
-      @state = (
+      @state ||= begin
         if _exact? then :exact
         elsif _conflict? then :conflict
         elsif _partial? then :partial
         else :ignore
         end
-      )
+      end
     end
 
     def exact?
