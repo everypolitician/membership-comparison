@@ -225,7 +225,7 @@ describe MembershipComparison do
     specify { expect(comparison.problems['wds:1030-1DAA-4100']).to be_empty }
   end
 
-  xcontext 'single existing P39, blank superclass position' do
+  context 'single existing P39, blank superclass position' do
     let(:comparison) do
       MembershipComparison.new(
         existing:   {
@@ -241,7 +241,7 @@ describe MembershipComparison do
     specify { expect(comparison.problems['wds:1030-1DAA-4100']).to be_empty }
   end
 
-  xcontext 'single existing P39, partially matching superclass position' do
+  context 'single existing P39, partially matching superclass position' do
     let(:comparison) do
       MembershipComparison.new(
         existing:   {
@@ -257,7 +257,7 @@ describe MembershipComparison do
     specify { expect(comparison.problems['wds:1030-1DAA-4100']).to match_array(['position conflict']) }
   end
 
-  xcontext 'single existing P39, matching superclass position' do
+  context 'single existing P39, matching superclass position' do
     let(:comparison) do
       MembershipComparison.new(
         existing:   {
@@ -273,7 +273,7 @@ describe MembershipComparison do
     specify { expect(comparison.problems['wds:1030-1DAA-4100']).to match_array(['position conflict']) }
   end
 
-  xcontext 'single existing P39, differing superclass position' do
+  context 'single existing P39, differing superclass position' do
     let(:comparison) do
       MembershipComparison.new(
         existing:   {

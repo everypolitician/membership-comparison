@@ -13,8 +13,6 @@ class MembershipComparison
     end
 
     def state
-      return unless statement[:position] == suggestion[:position]
-
       if comparisons.all?(&:exact?)
         :exact
       elsif comparisons.any?(&:ignore?)
