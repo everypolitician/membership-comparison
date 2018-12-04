@@ -16,8 +16,13 @@ describe MembershipComparison do
   let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
   let(:suggestion41) { { position: mp, term: term41, party: liberal, district: pontiac } }
   let(:suggestion_without_party) { { position: mp, term: term42, party: { id: nil }, district: pontiac } }
+
   let(:suggestion_speaker) do
     { position: speaker, position_parent: mp, term: term41, party: liberal, district: pontiac }
+  end
+
+  let(:suggestion_mp) do
+    { position: mp, position_children: [speaker], term: term41, party: liberal, district: pontiac }
   end
 
   after do |ex|
@@ -280,6 +285,70 @@ describe MembershipComparison do
           'wds:1030-1DAA-4100' => { position: mp, term: term40, party: liberal, district: pontiac },
         },
         suggestion: suggestion_speaker
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-4100']).to be_empty }
+  end
+
+  context 'single existing P39, blank subclass position' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-4100' => { position: speaker, term: {} },
+        },
+        suggestion: suggestion_mp
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to be_empty }
+    specify { expect(comparison.problems['wds:1030-1DAA-4100']).to be_empty }
+  end
+
+  context 'single existing P39, partially matching subclass position' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-4100' => { position: speaker, party: liberal },
+        },
+        suggestion: suggestion_mp
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to match_array('wds:1030-1DAA-4100') }
+    specify { expect(comparison.problems['wds:1030-1DAA-4100']).to match_array(['position conflict']) }
+  end
+
+  context 'single existing P39, matching subclass position' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-4100' => { position: speaker, term: term41, party: liberal, district: pontiac },
+        },
+        suggestion: suggestion_mp
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to match_array('wds:1030-1DAA-4100') }
+    specify { expect(comparison.problems['wds:1030-1DAA-4100']).to match_array(['position conflict']) }
+  end
+
+  context 'single existing P39, differing subclass position' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-4100' => { position: speaker, term: term40, party: liberal, district: pontiac },
+        },
+        suggestion: suggestion_mp
       )
     end
 
