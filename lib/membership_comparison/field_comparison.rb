@@ -45,17 +45,22 @@ class MembershipComparison
     end
 
     def conflict
-      "#{self.class.field} conflict" if conflict?
+      return "#{self.class.field} is a disambiguation" if disambiguation?
+      return "#{self.class.field} conflict" if conflict?
     end
 
     private
 
+    def disambiguation?
+      suggestion[self.class.field]&.fetch(:disambiguation, false)
+    end
+
     def _exact?
-      a == b || !b
+      (a == b || !b) && !disambiguation?
     end
 
     def _conflict?
-      a && b && a != b
+      (a && b && a != b) || disambiguation?
     end
 
     def _partial?

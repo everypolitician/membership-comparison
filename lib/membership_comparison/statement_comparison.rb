@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative './person_comparison'
 require_relative './party_comparison'
 require_relative './district_comparison'
 require_relative './term_comparison'
@@ -43,7 +44,11 @@ class MembershipComparison
     attr_reader :statement, :suggestion, :options
 
     def comparisons
-      @comparisons ||= [party_comparison, district_comparison, term_comparison]
+      @comparisons ||= [person_comparison, party_comparison, district_comparison, term_comparison]
+    end
+
+    def person_comparison
+      PersonComparison.new(statement: statement, suggestion: suggestion, options: options)
     end
 
     def party_comparison

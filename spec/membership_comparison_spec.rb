@@ -486,4 +486,54 @@ describe MembershipComparison do
     specify { expect(comparison.conflicts).to be_empty }
     specify { expect(comparison.problems['wds:1030-1DAA-3107']).to be_empty }
   end
+
+  context 'when suggestied person is a disambiguation page' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-0042' => { position: mp, term: term42, party: liberal, district: pontiac },
+        },
+        suggestion: suggestion.merge(person: { disambiguation: true })
+      )
+    end
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-0042']) }
+    specify { expect(comparison.problems['wds:1030-1DAA-0042']).to match_array(['person is a disambiguation']) }
+  end
+
+  context 'when suggestied party is a disambiguation page' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-0042' => { position: mp, term: term42, party: liberal, district: pontiac },
+        },
+        suggestion: suggestion
+      )
+    end
+    let(:liberal) { { id: 'Q138345', disambiguation: true } }
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-0042']) }
+    specify { expect(comparison.problems['wds:1030-1DAA-0042']).to match_array(['party is a disambiguation']) }
+  end
+
+  context 'when suggestied district is a disambiguation page' do
+    let(:comparison) do
+      MembershipComparison.new(
+        existing:   {
+          'wds:1030-1DAA-0042' => { position: mp, term: term42, party: liberal, district: pontiac },
+        },
+        suggestion: suggestion
+      )
+    end
+    let(:pontiac) { { id: 'Q3397734', disambiguation: true } }
+
+    specify { expect(comparison.exact_matches).to be_empty }
+    specify { expect(comparison.partial_matches).to be_empty }
+    specify { expect(comparison.conflicts).to match_array(['wds:1030-1DAA-0042']) }
+    specify { expect(comparison.problems['wds:1030-1DAA-0042']).to match_array(['district is a disambiguation']) }
+  end
 end
