@@ -31,6 +31,48 @@ describe MembershipComparison do
   let(:conflicts) { comparison.conflicts }
   let(:problems) { comparison.problems }
 
+  matcher :be_actionable do
+    match do |actual|
+      comparison.send(:suggestion) == actual &&
+        exact_matches.empty? && conflicts.empty? && problems.values.all?(&:empty?)
+    end
+  end
+
+  matcher :be_ignored do
+    match do |actual|
+      key = comparison.send(:existing).key(actual)
+      return unless key
+
+      !exact_matches.include?(key) && !partial_matches.include?(key) &&
+        !conflicts.include?(key) && problems[key].empty?
+    end
+  end
+
+  matcher :be_an_exact_match do
+    match do |actual|
+      key = comparison.send(:existing).key(actual)
+      exact_matches.include?(key) && problems[key].empty? if key
+    end
+  end
+
+  matcher :be_a_partial_match do
+    match do |actual|
+      key = comparison.send(:existing).key(actual)
+      partial_matches.include?(key) && problems[key].empty? if key
+    end
+  end
+
+  matcher :be_a_conflict do
+    match do |actual|
+      key = comparison.send(:existing).key(actual)
+      conflicts.include?(key) && problems[key].include?(@problem) if key
+    end
+
+    chain :with_problem do |problem|
+      @problem = problem
+    end
+  end
+
   after do |ex|
     next unless ex.display_exception
 
@@ -44,9 +86,7 @@ describe MembershipComparison do
     let(:existing) { [] }
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to be_empty }
+    specify { expect(suggestion).to be_actionable }
   end
 
   context 'existing base P39s' do
@@ -58,11 +98,9 @@ describe MembershipComparison do
     end
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to match_array([0, 1]) }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
-    specify { expect(problems[1]).to be_empty }
+    specify { expect(suggestion).to be_actionable }
+    specify { expect(existing[0]).to be_a_partial_match }
+    specify { expect(existing[1]).to be_a_partial_match }
   end
 
   context 'single existing P39, previous term' do
@@ -73,10 +111,8 @@ describe MembershipComparison do
     end
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
+    specify { expect(suggestion).to be_actionable }
+    specify { expect(existing[0]).to be_ignored }
   end
 
   context 'single existing P39, previous term for different district' do
@@ -87,10 +123,8 @@ describe MembershipComparison do
     end
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
+    specify { expect(suggestion).to be_actionable }
+    specify { expect(existing[0]).to be_ignored }
   end
 
   context 'single existing P39, following term' do
@@ -101,10 +135,8 @@ describe MembershipComparison do
     end
     let(:suggestion) { { position: mp, term: term41, party: liberal, district: pontiac } }
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
+    specify { expect(suggestion).to be_actionable }
+    specify { expect(existing[0]).to be_ignored }
   end
 
   context 'single existing P39, exact match' do
@@ -115,10 +147,8 @@ describe MembershipComparison do
     end
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
-    specify { expect(exact_matches).to match_array([0]) }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
+    specify { expect(suggestion).not_to be_actionable }
+    specify { expect(existing[0]).to be_an_exact_match }
   end
 
   context 'multiple existing P39s, current exact match' do
@@ -130,11 +160,9 @@ describe MembershipComparison do
     end
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
-    specify { expect(exact_matches).to match_array([1]) }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
-    specify { expect(problems[1]).to be_empty }
+    specify { expect(suggestion).not_to be_actionable }
+    specify { expect(existing[0]).to be_ignored }
+    specify { expect(existing[1]).to be_an_exact_match }
   end
 
   context 'multiple existing P39s, historic exact match' do
@@ -146,11 +174,9 @@ describe MembershipComparison do
     end
     let(:suggestion) { { position: mp, term: term41, party: liberal, district: pontiac } }
 
-    specify { expect(exact_matches).to match_array([0]) }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
-    specify { expect(problems[1]).to be_empty }
+    specify { expect(suggestion).not_to be_actionable }
+    specify { expect(existing[0]).to be_an_exact_match }
+    specify { expect(existing[1]).to be_ignored }
   end
 
   context 'single existing P39, partial match' do
@@ -161,10 +187,8 @@ describe MembershipComparison do
     end
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to match_array([0]) }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
+    specify { expect(suggestion).to be_actionable }
+    specify { expect(existing[0]).to be_a_partial_match }
   end
 
   context 'single existing P39, party conflict' do
@@ -175,10 +199,8 @@ describe MembershipComparison do
     end
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to match_array([0]) }
-    specify { expect(problems[0]).to match_array(['party conflict']) }
+    specify { expect(suggestion).not_to be_actionable }
+    specify { expect(existing[0]).to be_a_conflict.with_problem('party conflict') }
   end
 
   context 'single existing P39, district conflict' do
@@ -189,10 +211,8 @@ describe MembershipComparison do
     end
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to match_array([0]) }
-    specify { expect(problems[0]).to match_array(['district conflict']) }
+    specify { expect(suggestion).not_to be_actionable }
+    specify { expect(existing[0]).to be_a_conflict.with_problem('district conflict') }
   end
 
   context 'single existing P39, different position' do
@@ -203,10 +223,8 @@ describe MembershipComparison do
     end
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
+    specify { expect(suggestion).to be_actionable }
+    specify { expect(existing[0]).to be_ignored }
   end
 
   context 'single existing P39, without suggested party' do
@@ -217,10 +235,8 @@ describe MembershipComparison do
     end
     let(:suggestion) { { position: mp, term: term42, party: { id: nil }, district: pontiac } }
 
-    specify { expect(exact_matches).to match_array([0]) }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
+    specify { expect(suggestion).not_to be_actionable }
+    specify { expect(existing[0]).to be_an_exact_match }
   end
 
   context 'existing dated P39, within term' do
@@ -234,10 +250,8 @@ describe MembershipComparison do
     # Statements:                 2015-12-03 ->
     # Term:       -> 2015-08-02 | 2015-12-03 ->
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to match_array([0]) }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
+    specify { expect(suggestion).to be_actionable }
+    specify { expect(existing[0]).to be_a_partial_match }
   end
 
   context 'existing dated P39 between terms' do
@@ -251,10 +265,8 @@ describe MembershipComparison do
     # Statements:                 2015-10-18 ------------>
     # Term:       -> 2015-08-02 |            2015-12-03 ->
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to match_array([0]) }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
+    specify { expect(suggestion).to be_actionable }
+    specify { expect(existing[0]).to be_a_partial_match }
   end
 
   context 'existing dated P39 spanning terms' do
@@ -268,10 +280,8 @@ describe MembershipComparison do
     # Statements: 2011-06-02 ----------------------------> 2017-11-12
     # Term:                  -> 2015-12-03 | 2015-12-03 ->
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to match_array([0]) }
-    specify { expect(problems[0]).to match_array(['spanning terms']) }
+    specify { expect(suggestion).not_to be_actionable }
+    specify { expect(existing[0]).to be_a_conflict.with_problem('spanning terms') }
   end
 
   context 'existing dated P39, later term' do
@@ -285,10 +295,8 @@ describe MembershipComparison do
     # Statements:                                            2015-12-03 ->
     # Term:       -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ->
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
+    specify { expect(suggestion).to be_actionable }
+    specify { expect(existing[0]).to be_ignored }
   end
 
   context 'existing P39s, surrounding terms' do
@@ -303,11 +311,9 @@ describe MembershipComparison do
     # Statements: 2008-11-18 -> 2011-03-26 |                          | 2015-12-03 ->
     # Term:                  -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ->
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
-    specify { expect(problems[1]).to be_empty }
+    specify { expect(suggestion).to be_actionable }
+    specify { expect(existing[0]).to be_ignored }
+    specify { expect(existing[1]).to be_ignored }
   end
 
   context 'existing P39s, surrounding dates' do
@@ -322,11 +328,9 @@ describe MembershipComparison do
     # Statements: 2008-11-18 -> 2011-03-26 |                          |            2017-01-03 ->
     # Term:                  -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ------------>
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
-    specify { expect(problems[1]).to be_empty }
+    specify { expect(suggestion).to be_actionable }
+    specify { expect(existing[0]).to be_ignored }
+    specify { expect(existing[1]).to be_ignored }
   end
 
   context 'existing P39s, surrounding and including terms' do
@@ -342,12 +346,10 @@ describe MembershipComparison do
     # Statements: 2008-11-18 -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ->
     # Term:                  -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ->
 
-    specify { expect(exact_matches).to match_array([1]) }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
-    specify { expect(problems[1]).to be_empty }
-    specify { expect(problems[2]).to be_empty }
+    specify { expect(suggestion).not_to be_actionable }
+    specify { expect(existing[0]).to be_ignored }
+    specify { expect(existing[1]).to be_an_exact_match }
+    specify { expect(existing[2]).to be_ignored }
   end
 
   context 'existing P39s, surrounding and including dates' do
@@ -363,12 +365,10 @@ describe MembershipComparison do
     # Statements: 2008-11-18 -> 2011-03-26 | 2011-06-02 -> 2015-08-02 |            2017-01-03 ->
     # Term:                  -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ------------>
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to match_array([1]) }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
-    specify { expect(problems[1]).to be_empty }
-    specify { expect(problems[2]).to be_empty }
+    specify { expect(suggestion).to be_actionable }
+    specify { expect(existing[0]).to be_ignored }
+    specify { expect(existing[1]).to be_a_partial_match }
+    specify { expect(existing[2]).to be_ignored }
   end
 
   context 'member returns within term' do
@@ -383,10 +383,8 @@ describe MembershipComparison do
     # Term:       -> 2015-08-02 | 2015-12-03 ->            |
     # Suggestion:                                          | 2017-01-03 ->
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
+    specify { expect(suggestion).to be_actionable }
+    specify { expect(existing[0]).to be_ignored }
   end
 
   context 'member returns within term (previous still open)' do
@@ -401,10 +399,8 @@ describe MembershipComparison do
     # Term:       -> 2015-08-02 | 2015-12-03 ------------>
     # Suggestion:                            2017-01-03 ->
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to match_array([0]) }
-    specify { expect(problems[0]).to match_array(['previous term still open']) }
+    specify { expect(suggestion).not_to be_actionable }
+    specify { expect(existing[0]).to be_a_conflict.with_problem('previous term still open') }
   end
 
   context 'existing dated P39, started before previous term ended' do
@@ -418,10 +414,8 @@ describe MembershipComparison do
     # Statements: 2015-03-10 ------------> |
     # Term:                  -> 2015-08-02 | 2015-12-03 ->
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to match_array([0]) }
-    specify { expect(problems[0]).to match_array(['previous term still open']) }
+    specify { expect(suggestion).not_to be_actionable }
+    specify { expect(existing[0]).to be_a_conflict.with_problem('previous term still open') }
   end
 
   context 'existing statement, started during a term' do
@@ -436,10 +430,8 @@ describe MembershipComparison do
     # Term:       -> 2015-08-02 | 2015-12-03 ------------>
     # Suggestion:                 2015-12-03 ------------>
 
-    specify { expect(exact_matches).to match_array([0]) }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to be_empty }
-    specify { expect(problems[0]).to be_empty }
+    specify { expect(suggestion).not_to be_actionable }
+    specify { expect(existing[0]).to be_an_exact_match }
   end
 
   context 'when suggestied person is a disambiguation page' do
@@ -452,10 +444,8 @@ describe MembershipComparison do
       { position: mp, term: term42, party: liberal, district: pontiac, person: { disambiguation: true } }
     end
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to match_array([0]) }
-    specify { expect(problems[0]).to match_array(['person is a disambiguation']) }
+    specify { expect(suggestion).not_to be_actionable }
+    specify { expect(existing[0]).to be_a_conflict.with_problem('person is a disambiguation') }
   end
 
   context 'when suggestied party is a disambiguation page' do
@@ -467,10 +457,8 @@ describe MembershipComparison do
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
     let(:liberal) { { id: 'Q138345', disambiguation: true } }
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to match_array([0]) }
-    specify { expect(problems[0]).to match_array(['party is a disambiguation']) }
+    specify { expect(suggestion).not_to be_actionable }
+    specify { expect(existing[0]).to be_a_conflict.with_problem('party is a disambiguation') }
   end
 
   context 'when suggestied district is a disambiguation page' do
@@ -482,9 +470,7 @@ describe MembershipComparison do
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
     let(:pontiac) { { id: 'Q3397734', disambiguation: true } }
 
-    specify { expect(exact_matches).to be_empty }
-    specify { expect(partial_matches).to be_empty }
-    specify { expect(conflicts).to match_array([0]) }
-    specify { expect(problems[0]).to match_array(['district is a disambiguation']) }
+    specify { expect(suggestion).not_to be_actionable }
+    specify { expect(existing[0]).to be_a_conflict.with_problem('district is a disambiguation') }
   end
 end
