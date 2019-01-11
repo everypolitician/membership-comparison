@@ -13,9 +13,6 @@ describe MembershipComparison do
   let(:term40) { { id: 'Q2816734', eopt: '2008-09-07', start: '2008-11-18', end: '2011-03-26', sont: '2011-06-02' } }
   let(:term41) { { id: 'Q2816776', eopt: '2011-03-26', start: '2011-06-02', end: '2015-08-02', sont: '2015-12-03' } }
   let(:term42) { { id: 'Q21157957', eopt: '2015-08-02', start: '2015-12-03' } }
-  let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
-  let(:suggestion41) { { position: mp, term: term41, party: liberal, district: pontiac } }
-  let(:suggestion_without_party) { { position: mp, term: term42, party: { id: nil }, district: pontiac } }
 
   after do |ex|
     next unless ex.display_exception
@@ -30,7 +27,7 @@ describe MembershipComparison do
     let(:comparison) do
       MembershipComparison.new(
         existing:   {},
-        suggestion: suggestion
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac }
       )
     end
 
@@ -47,7 +44,7 @@ describe MembershipComparison do
           'wds:1030-1DAA-3101' => { position: mp },
           'wds:1030-1DAA-3102' => { position: mp, term: { id: nil }, party: { id: nil }, district: { id: nil } },
         },
-        suggestion: suggestion
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac }
       )
     end
 
@@ -64,7 +61,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-3100' => { position: mp, term: term41, party: liberal, district: pontiac },
         },
-        suggestion: suggestion
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac }
       )
     end
 
@@ -80,7 +77,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-3100' => { position: mp, term: term41, party: liberal, district: quebec },
         },
-        suggestion: suggestion
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac }
       )
     end
 
@@ -96,7 +93,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
         },
-        suggestion: suggestion41
+        suggestion: { position: mp, term: term41, party: liberal, district: pontiac }
       )
     end
 
@@ -112,7 +109,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
         },
-        suggestion: suggestion
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac }
       )
     end
 
@@ -129,7 +126,7 @@ describe MembershipComparison do
           'wds:1030-1DAA-3100' => { position: mp, term: term41, party: liberal, district: pontiac },
           'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
         },
-        suggestion: suggestion
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac }
       )
     end
 
@@ -147,7 +144,7 @@ describe MembershipComparison do
           'wds:1030-1DAA-3100' => { position: mp, term: term41, party: liberal, district: pontiac },
           'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
         },
-        suggestion: suggestion41
+        suggestion: { position: mp, term: term41, party: liberal, district: pontiac }
       )
     end
 
@@ -164,7 +161,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-3102' => { position: mp, term: term42 },
         },
-        suggestion: suggestion
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac }
       )
     end
 
@@ -180,7 +177,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-3102' => { position: mp, term: term42, party: conservative },
         },
-        suggestion: suggestion # party: liberal
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac } # party: liberal
       )
     end
 
@@ -196,7 +193,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-3102' => { position: mp, term: term42, party: liberal, district: quebec },
         },
-        suggestion: suggestion # district: pontiac
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac } # district: pontiac
       )
     end
 
@@ -212,7 +209,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-4100' => { position: speaker, term: term41, party: liberal, district: pontiac },
         },
-        suggestion: suggestion
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac }
       )
     end
 
@@ -228,7 +225,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-3102' => { position: mp, term: term42, party: conservative, district: pontiac },
         },
-        suggestion: suggestion_without_party
+        suggestion: { position: mp, term: term42, party: { id: nil }, district: pontiac }
       )
     end
 
@@ -244,7 +241,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-3103' => { position: mp, start: '2015-12-03', party: liberal, district: pontiac },
         },
-        suggestion: suggestion
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac }
       )
     end
 
@@ -263,7 +260,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-3104' => { position: mp, start: '2015-10-18', party: liberal, district: pontiac },
         },
-        suggestion: suggestion
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac }
       )
     end
 
@@ -283,7 +280,7 @@ describe MembershipComparison do
           'wds:1030-1DAA-3105' => { position: mp, start: '2011-06-02', end: '2017-11-12', party: liberal,
                                     district: pontiac, },
         },
-        suggestion: suggestion
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac }
       )
     end
 
@@ -302,7 +299,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-3103' => { position: mp, start: '2015-12-03', party: liberal, district: pontiac },
         },
-        suggestion: suggestion41
+        suggestion: { position: mp, term: term41, party: liberal, district: pontiac }
       )
     end
 
@@ -322,7 +319,7 @@ describe MembershipComparison do
           'wds:1030-1DAA-3140' => { position: mp, term: term40, party: liberal, district: pontiac },
           'wds:1030-1DAA-3101' => { position: mp, term: term42, party: liberal, district: pontiac },
         },
-        suggestion: suggestion41
+        suggestion: { position: mp, term: term41, party: liberal, district: pontiac }
       )
     end
 
@@ -344,7 +341,7 @@ describe MembershipComparison do
                                     district: pontiac, },
           'wds:1030-1DAA-3101' => { position: mp, start: '2017-01-03', party: liberal, district: pontiac },
         },
-        suggestion: suggestion41
+        suggestion: { position: mp, term: term41, party: liberal, district: pontiac }
       )
     end
 
@@ -366,7 +363,7 @@ describe MembershipComparison do
           'wds:1030-1DAA-0041' => { position: mp, term: term41, party: liberal, district: pontiac },
           'wds:1030-1DAA-0042' => { position: mp, term: term42, party: liberal, district: pontiac },
         },
-        suggestion: suggestion41
+        suggestion: { position: mp, term: term41, party: liberal, district: pontiac }
       )
     end
 
@@ -391,7 +388,7 @@ describe MembershipComparison do
                                     district: pontiac, },
           'wds:1030-1DAA-1042' => { position: mp, start: '2017-01-03', party: liberal, district: pontiac },
         },
-        suggestion: suggestion41
+        suggestion: { position: mp, term: term41, party: liberal, district: pontiac }
       )
     end
 
@@ -453,7 +450,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-3104' => { position: mp, start: '2015-03-10', party: liberal, district: pontiac },
         },
-        suggestion: suggestion
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac }
       )
     end
 
@@ -473,7 +470,7 @@ describe MembershipComparison do
           'wds:1030-1DAA-3107' => { position: mp, term: term42, start: '2016-03-03', party: liberal,
                                     district: pontiac, },
         },
-        suggestion: suggestion
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac }
       )
     end
 
@@ -493,7 +490,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-0042' => { position: mp, term: term42, party: liberal, district: pontiac },
         },
-        suggestion: suggestion.merge(person: { disambiguation: true })
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac, person: { disambiguation: true } }
       )
     end
 
@@ -509,7 +506,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-0042' => { position: mp, term: term42, party: liberal, district: pontiac },
         },
-        suggestion: suggestion
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac }
       )
     end
     let(:liberal) { { id: 'Q138345', disambiguation: true } }
@@ -526,7 +523,7 @@ describe MembershipComparison do
         existing:   {
           'wds:1030-1DAA-0042' => { position: mp, term: term42, party: liberal, district: pontiac },
         },
-        suggestion: suggestion
+        suggestion: { position: mp, term: term42, party: liberal, district: pontiac }
       )
     end
     let(:pontiac) { { id: 'Q3397734', disambiguation: true } }
