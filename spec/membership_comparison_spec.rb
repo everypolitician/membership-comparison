@@ -18,301 +18,234 @@ describe MembershipComparison do
   let(:term42) { { id: 'Q21157957', eopt: '2015-08-02', start: '2015-12-03' } }
 
   context 'when there are no statements' do
-    let(:existing) { [] }
+    let(:statements) { [] }
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
     specify { expect(suggestion).to be_actionable }
   end
 
   context 'when there are bare statements' do
-    let(:existing) do
-      [
-        { position: mp },
-        { position: mp, term: { id: nil }, party: { id: nil }, district: { id: nil } },
-      ]
-    end
+    let(:bare_1) { { position: mp } }
+    let(:bare_2) { { position: mp, term: { id: nil }, party: { id: nil }, district: { id: nil } } }
+    let(:statements) { [bare_1, bare_2] }
+
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
     specify { expect(suggestion).to be_actionable }
-    specify { expect(existing[0]).to be_a_partial_match }
-    specify { expect(existing[1]).to be_a_partial_match }
+    specify { expect(bare_1).to be_a_partial_match }
+    specify { expect(bare_2).to be_a_partial_match }
   end
 
   context 'when suggesting the previous term' do
-    let(:existing) do
-      [
-        { position: mp, term: term41, party: liberal, district: pontiac },
-      ]
-    end
-    let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
-
-    specify { expect(suggestion).to be_actionable }
-    specify { expect(existing[0]).to be_ignored }
-  end
-
-  context 'when suggesting the next term' do
-    let(:existing) do
-      [
-        { position: mp, term: term41, party: liberal, district: quebec },
-      ]
-    end
-    let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
-
-    specify { expect(suggestion).to be_actionable }
-    specify { expect(existing[0]).to be_ignored }
-  end
-
-  context 'when suggesting the next term and a different district' do
-    let(:existing) do
-      [
-        { position: mp, term: term42, party: liberal, district: pontiac },
-      ]
-    end
+    let(:statement) { { position: mp, term: term42, party: liberal, district: pontiac } }
     let(:suggestion) { { position: mp, term: term41, party: liberal, district: pontiac } }
 
     specify { expect(suggestion).to be_actionable }
-    specify { expect(existing[0]).to be_ignored }
+    specify { expect(statement).to be_ignored }
+  end
+
+  context 'when suggesting the next term' do
+    let(:statement) { { position: mp, term: term41, party: liberal, district: pontiac } }
+    let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
+
+    specify { expect(suggestion).to be_actionable }
+    specify { expect(statement).to be_ignored }
+  end
+
+  context 'when suggesting the next term and a different district' do
+    let(:statement) { { position: mp, term: term41, party: liberal, district: quebec } }
+    let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
+
+    specify { expect(suggestion).to be_actionable }
+    specify { expect(statement).to be_ignored }
   end
 
   context 'when suggesting an existing statement' do
-    let(:existing) do
-      [
-        { position: mp, term: term42, party: liberal, district: pontiac },
-      ]
-    end
+    let(:statement) { { position: mp, term: term42, party: liberal, district: pontiac } }
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
     specify { expect(suggestion).not_to be_actionable }
-    specify { expect(existing[0]).to be_an_exact_match }
+    specify { expect(statement).to be_an_exact_match }
   end
 
   context 'when there are existing statements for previous and current terms' do
+    let(:previous_statement) { { position: mp, term: term41, party: liberal, district: pontiac } }
+    let(:current_statement) { { position: mp, term: term42, party: liberal, district: pontiac } }
+    let(:statements) { [previous_statement, current_statement] }
+
     context 'when suggesting the previous term' do
-      let(:existing) do
-        [
-          { position: mp, term: term41, party: liberal, district: pontiac },
-          { position: mp, term: term42, party: liberal, district: pontiac },
-        ]
-      end
-      let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
-
-      specify { expect(suggestion).not_to be_actionable }
-      specify { expect(existing[0]).to be_ignored }
-      specify { expect(existing[1]).to be_an_exact_match }
-    end
-
-    context 'when suggesting the current term' do
-      let(:existing) do
-        [
-          { position: mp, term: term41, party: liberal, district: pontiac },
-          { position: mp, term: term42, party: liberal, district: pontiac },
-        ]
-      end
       let(:suggestion) { { position: mp, term: term41, party: liberal, district: pontiac } }
 
       specify { expect(suggestion).not_to be_actionable }
-      specify { expect(existing[0]).to be_an_exact_match }
-      specify { expect(existing[1]).to be_ignored }
+      specify { expect(previous_statement).to be_an_exact_match }
+      specify { expect(current_statement).to be_ignored }
+    end
+
+    context 'when suggesting the current term' do
+      let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
+
+      specify { expect(suggestion).not_to be_actionable }
+      specify { expect(previous_statement).to be_ignored }
+      specify { expect(current_statement).to be_an_exact_match }
     end
   end
 
   context 'when suggesting additional data' do
-    let(:existing) do
-      [
-        { position: mp, term: term42 },
-      ]
-    end
+    let(:statement) { { position: mp, term: term42 } }
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
     specify { expect(suggestion).to be_actionable }
-    specify { expect(existing[0]).to be_a_partial_match }
+    specify { expect(statement).to be_a_partial_match }
   end
 
   context 'when suggesting a different party' do
-    let(:existing) do
-      [
-        { position: mp, term: term42, party: conservative },
-      ]
-    end
+    let(:statement) { { position: mp, term: term42, party: conservative } }
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
     specify { expect(suggestion).not_to be_actionable }
-    specify { expect(existing[0]).to be_a_conflict.with_problem('party conflict') }
+    specify { expect(statement).to be_a_conflict.with_problem('party conflict') }
   end
 
   context 'when suggesting a different district' do
-    let(:existing) do
-      [
-        { position: mp, term: term42, party: liberal, district: quebec },
-      ]
-    end
+    let(:statement) { { position: mp, term: term42, party: liberal, district: quebec } }
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
     specify { expect(suggestion).not_to be_actionable }
-    specify { expect(existing[0]).to be_a_conflict.with_problem('district conflict') }
+    specify { expect(statement).to be_a_conflict.with_problem('district conflict') }
   end
 
   context 'when suggesting a different position' do
-    let(:existing) do
-      [
-        { position: speaker, term: term41, party: liberal, district: pontiac },
-      ]
-    end
+    let(:statement) { { position: speaker, term: term41, party: liberal, district: pontiac } }
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
     specify { expect(suggestion).to be_actionable }
-    specify { expect(existing[0]).to be_ignored }
+    specify { expect(statement).to be_ignored }
   end
 
   context 'when not suggesting party even thought a statement has a party' do
-    let(:existing) do
-      [
-        { position: mp, term: term42, party: conservative, district: pontiac },
-      ]
-    end
+    let(:statement) { { position: mp, term: term42, party: conservative, district: pontiac } }
     let(:suggestion) { { position: mp, term: term42, party: { id: nil }, district: pontiac } }
 
     specify { expect(suggestion).not_to be_actionable }
+    specify { expect(statement).to be_an_exact_match }
   end
 
   context 'when suggesting term started the same day as a statement' do
-    let(:existing) do
-      [
-        { position: mp, start: '2015-12-03', party: liberal, district: pontiac },
-      ]
-    end
+    let(:statement) { { position: mp, start: '2015-12-03', party: liberal, district: pontiac } }
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
     # Statements:                 2015-12-03 ->
     # Term:       -> 2015-08-02 | 2015-12-03 ->
 
     specify { expect(suggestion).to be_actionable }
-    specify { expect(existing[0]).to be_a_partial_match }
+    specify { expect(statement).to be_a_partial_match }
   end
 
   context 'when suggesting term started after a statement' do
-    let(:existing) do
-      [
-        { position: mp, start: '2015-10-18', party: liberal, district: pontiac },
-      ]
-    end
+    let(:statement) { { position: mp, start: '2015-10-18', party: liberal, district: pontiac } }
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
     # Statements:                 2015-10-18 ------------>
     # Term:       -> 2015-08-02 |            2015-12-03 ->
 
     specify { expect(suggestion).to be_actionable }
-    specify { expect(existing[0]).to be_a_partial_match }
+    specify { expect(statement).to be_a_partial_match }
   end
 
   context 'when suggesting term started during a statement' do
-    let(:existing) do
-      [
-        { position: mp, start: '2011-06-02', end: '2017-11-12', party: liberal, district: pontiac },
-      ]
-    end
+    let(:statement) { { position: mp, start: '2011-06-02', end: '2017-11-12', party: liberal, district: pontiac } }
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
     # Statements: 2011-06-02 ----------------------------> 2017-11-12
     # Term:                  -> 2015-08-02 | 2015-12-03 ->
 
     specify { expect(suggestion).not_to be_actionable }
-    specify { expect(existing[0]).to be_a_conflict.with_problem('spanning terms') }
+    specify { expect(statement).to be_a_conflict.with_problem('spanning terms') }
   end
 
   context 'when suggesting term ending before a statement' do
-    let(:existing) do
-      [
-        { position: mp, start: '2015-12-03', party: liberal, district: pontiac },
-      ]
-    end
+    let(:statement) { { position: mp, start: '2015-12-03', party: liberal, district: pontiac } }
     let(:suggestion) { { position: mp, term: term41, party: liberal, district: pontiac } }
 
     # Statements:                                            2015-12-03 ->
     # Term:       -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ->
 
     specify { expect(suggestion).to be_actionable }
-    specify { expect(existing[0]).to be_ignored }
+    specify { expect(statement).to be_ignored }
   end
 
   context 'when suggesting term between two other terms' do
-    let(:existing) do
-      [
-        { position: mp, term: term40, party: liberal, district: pontiac },
-        { position: mp, term: term42, party: liberal, district: pontiac },
-      ]
-    end
+    let(:previous_statement) { { position: mp, term: term40, party: liberal, district: pontiac } }
+    let(:next_statement) { { position: mp, term: term42, party: liberal, district: pontiac } }
+    let(:statements) { [previous_statement, next_statement] }
+
     let(:suggestion) { { position: mp, term: term41, party: liberal, district: pontiac } }
 
     # Statements: 2008-11-18 -> 2011-03-26 |                          | 2015-12-03 ->
     # Term:                  -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ->
 
     specify { expect(suggestion).to be_actionable }
-    specify { expect(existing[0]).to be_ignored }
-    specify { expect(existing[1]).to be_ignored }
+    specify { expect(previous_statement).to be_ignored }
+    specify { expect(next_statement).to be_ignored }
   end
 
   context 'when suggesting term between two existing statement' do
-    let(:existing) do
-      [
-        { position: mp, start: '2008-11-18', end: '2011-03-26', party: liberal, district: pontiac },
-        { position: mp, start: '2017-01-03', party: liberal, district: pontiac },
-      ]
+    let(:previous_statement) do
+      { position: mp, start: '2008-11-18', end: '2011-03-26', party: liberal, district: pontiac }
     end
+    let(:next_statement) { { position: mp, start: '2017-01-03', party: liberal, district: pontiac } }
+    let(:statements) { [previous_statement, next_statement] }
+
     let(:suggestion) { { position: mp, term: term41, party: liberal, district: pontiac } }
 
     # Statements: 2008-11-18 -> 2011-03-26 |                          |            2017-01-03 ->
     # Term:                  -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ------------>
 
     specify { expect(suggestion).to be_actionable }
-    specify { expect(existing[0]).to be_ignored }
-    specify { expect(existing[1]).to be_ignored }
+    specify { expect(previous_statement).to be_ignored }
+    specify { expect(next_statement).to be_ignored }
   end
 
   context 'when suggesting term between two other terms and matching term' do
-    let(:existing) do
-      [
-        { position: mp, term: term40, party: liberal, district: pontiac },
-        { position: mp, term: term41, party: liberal, district: pontiac },
-        { position: mp, term: term42, party: liberal, district: pontiac },
-      ]
-    end
+    let(:previous_statement) { { position: mp, term: term40, party: liberal, district: pontiac } }
+    let(:statement) { { position: mp, term: term41, party: liberal, district: pontiac } }
+    let(:next_statement) { { position: mp, term: term42, party: liberal, district: pontiac } }
+    let(:statements) { [previous_statement, statement, next_statement] }
+
     let(:suggestion) { { position: mp, term: term41, party: liberal, district: pontiac } }
 
     # Statements: 2008-11-18 -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ->
     # Term:                  -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ->
 
     specify { expect(suggestion).not_to be_actionable }
-    specify { expect(existing[0]).to be_ignored }
-    specify { expect(existing[1]).to be_an_exact_match }
-    specify { expect(existing[2]).to be_ignored }
+    specify { expect(previous_statement).to be_ignored }
+    specify { expect(statement).to be_an_exact_match }
+    specify { expect(next_statement).to be_ignored }
   end
 
   context 'when suggesting term between two statements and matching statement' do
-    let(:existing) do
-      [
-        { position: mp, start: '2008-11-18', end: '2011-03-26', party: liberal, district: pontiac },
-        { position: mp, start: '2011-06-02', end: '2015-08-02', party: liberal, district: pontiac },
-        { position: mp, start: '2017-01-03', party: liberal, district: pontiac },
-      ]
+    let(:previous_statement) do
+      { position: mp, start: '2008-11-18', end: '2011-03-26', party: liberal, district: pontiac }
     end
+    let(:statement) do
+      { position: mp, start: '2011-06-02', end: '2015-08-02', party: liberal, district: pontiac }
+    end
+    let(:next_statement) { { position: mp, start: '2017-01-03', party: liberal, district: pontiac } }
+    let(:statements) { [previous_statement, statement, next_statement] }
+
     let(:suggestion) { { position: mp, term: term41, party: liberal, district: pontiac } }
 
     # Statements: 2008-11-18 -> 2011-03-26 | 2011-06-02 -> 2015-08-02 |            2017-01-03 ->
     # Term:                  -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ------------>
 
     specify { expect(suggestion).to be_actionable }
-    specify { expect(existing[0]).to be_ignored }
-    specify { expect(existing[1]).to be_a_partial_match }
-    specify { expect(existing[2]).to be_ignored }
+    specify { expect(previous_statement).to be_ignored }
+    specify { expect(statement).to be_a_partial_match }
+    specify { expect(next_statement).to be_ignored }
   end
 
   context 'when suggesting a start date after a statement within the same histrical term' do
-    let(:existing) do
-      [
-        { position: mp, start: '2015-12-03', end: '2016-04-03', party: liberal, district: pontiac },
-      ]
-    end
+    let(:statement) { { position: mp, start: '2015-12-03', end: '2016-04-03', party: liberal, district: pontiac } }
     let(:suggestion) { { position: mp, term: term42, start: '2017-01-03', party: liberal, district: pontiac } }
 
     # Statements:                 2015-12-03 -> 2016-04-03 |
@@ -320,16 +253,12 @@ describe MembershipComparison do
     # Suggestion:                                          | 2017-01-03 ->
 
     specify { expect(suggestion).to be_actionable }
-    specify { expect(existing[0]).to be_ignored }
+    specify { expect(statement).to be_ignored }
   end
 
   context 'when there is a statement for a previous term which has not been closed' do
     context 'when suggesting the same term' do
-      let(:existing) do
-        [
-          { position: mp, start: '2015-12-03', party: liberal, district: pontiac },
-        ]
-      end
+      let(:statement) { { position: mp, start: '2015-12-03', party: liberal, district: pontiac } }
       let(:suggestion) { { position: mp, term: term42, start: '2017-01-03', party: liberal, district: pontiac } }
 
       # Statements:                 2015-12-03 ------------>
@@ -337,15 +266,22 @@ describe MembershipComparison do
       # Suggestion:                            2017-01-03 ->
 
       specify { expect(suggestion).not_to be_actionable }
-      specify { expect(existing[0]).to be_a_conflict.with_problem('previous term still open') }
+      specify { expect(statement).to be_a_conflict.with_problem('previous term still open') }
     end
 
     context 'when suggesting the current term' do
-      let(:existing) do
-        [
-          { position: mp, term: term42, start: '2016-03-03', party: liberal, district: pontiac },
-        ]
-      end
+      let(:statement) { { position: mp, term: term42, start: '2016-03-03', party: liberal, district: pontiac } }
+      let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
+
+      # Statements: 2015-03-10 ------------> |
+      # Term:                  -> 2015-08-02 | 2015-12-03 ->
+
+      specify { expect(suggestion).not_to be_actionable }
+      specify { expect(statement).to be_an_exact_match }
+    end
+
+    context 'when suggesting the next term' do
+      let(:statement) { { position: mp, start: '2015-03-10', party: liberal, district: pontiac } }
       let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
 
       # Statements:                            2016-03-03 ->
@@ -353,62 +289,34 @@ describe MembershipComparison do
       # Suggestion:                 2015-12-03 ------------>
 
       specify { expect(suggestion).not_to be_actionable }
-      specify { expect(existing[0]).to be_an_exact_match }
-    end
-
-    context 'when suggesting the next term' do
-      let(:existing) do
-        [
-          { position: mp, start: '2015-03-10', party: liberal, district: pontiac },
-        ]
-      end
-      let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
-
-      # Statements: 2015-03-10 ------------> |
-      # Term:                  -> 2015-08-02 | 2015-12-03 ->
-
-      specify { expect(suggestion).not_to be_actionable }
-      specify { expect(existing[0]).to be_a_conflict.with_problem('previous term still open') }
+      specify { expect(statement).to be_a_conflict.with_problem('previous term still open') }
     end
   end
 
   context 'when suggesting a disambiguation person' do
-    let(:existing) do
-      [
-        { position: mp, term: term42, party: liberal, district: pontiac },
-      ]
-    end
-    let(:suggestion) do
-      { position: mp, term: term42, party: liberal, district: pontiac, person: { disambiguation: true } }
-    end
+    let(:statement) { { position: mp, term: term42, party: liberal, district: pontiac } }
+    let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac, person: person } }
+    let(:person) { { disambiguation: true } }
 
     specify { expect(suggestion).not_to be_actionable }
-    specify { expect(existing[0]).to be_a_conflict.with_problem('person is a disambiguation') }
+    specify { expect(statement).to be_a_conflict.with_problem('person is a disambiguation') }
   end
 
   context 'when suggesting a disambiguation party' do
-    let(:existing) do
-      [
-        { position: mp, term: term42, party: liberal, district: pontiac },
-      ]
-    end
+    let(:statement) { { position: mp, term: term42, party: liberal, district: pontiac } }
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
     let(:liberal) { { id: 'Q138345', disambiguation: true } }
 
     specify { expect(suggestion).not_to be_actionable }
-    specify { expect(existing[0]).to be_a_conflict.with_problem('party is a disambiguation') }
+    specify { expect(statement).to be_a_conflict.with_problem('party is a disambiguation') }
   end
 
   context 'when suggesting a disambiguation district' do
-    let(:existing) do
-      [
-        { position: mp, term: term42, party: liberal, district: pontiac },
-      ]
-    end
+    let(:statement) { { position: mp, term: term42, party: liberal, district: pontiac } }
     let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
     let(:pontiac) { { id: 'Q3397734', disambiguation: true } }
 
     specify { expect(suggestion).not_to be_actionable }
-    specify { expect(existing[0]).to be_a_conflict.with_problem('district is a disambiguation') }
+    specify { expect(statement).to be_a_conflict.with_problem('district is a disambiguation') }
   end
 end

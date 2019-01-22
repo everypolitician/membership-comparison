@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
 RSpec.shared_context 'spec setup', shared_context: :metadata do
-  let(:existing) { raise NotImplementedError }
+  let(:statements) { [statement] }
+  let(:statement) { raise NotImplementedError }
   let(:suggestion) { raise NotImplementedError }
 
   def comparison
     @comparison ||= begin
-      existing_as_hash = existing.each_with_object({}).with_index do |(statement, memo), idx|
+      statements_hash = statements.each_with_object({}).with_index do |(statement, memo), idx|
         memo[idx] = statement
       end
-      MembershipComparison.new(existing: existing_as_hash, suggestion: suggestion)
+      MembershipComparison.new(existing: statements_hash, suggestion: suggestion)
     end
   end
 
