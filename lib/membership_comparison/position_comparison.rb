@@ -7,7 +7,7 @@ class MembershipComparison
     alias statement_state state
 
     def state
-      return unless position_match? || superclass_match?
+      return unless position_match? || superclass_match? || subclass_match?
       return :ignore if bare?
       return :conflict if conflicted?
 
@@ -15,17 +15,17 @@ class MembershipComparison
     end
 
     def conflicts
-      return [] unless position_match? || superclass_match?
+      return [] unless position_match? || superclass_match? || subclass_match?
       return ['position conflict'] if conflicted? && !bare?
 
       super
     end
 
     def field_states
-      return {} unless position_match? || superclass_match?
+      return {} unless position_match? || superclass_match? || subclass_match?
 
       super.tap do |states|
-        states[:position] = state if superclass_match?
+        states[:position] = state if superclass_match? || subclass_match?
       end
     end
 
@@ -39,15 +39,19 @@ class MembershipComparison
       statement[:position] == suggestion[:position_parent]
     end
 
+    def subclass_match?
+      suggestion[:position_children]&.include?(statement[:position])
+    end
+
     def bare?
-      superclass_match? && statement.reject { |k| k == :position }.values.all?(&:empty?)
+      (superclass_match? || subclass_match?) && statement.reject { |k| k == :position }.values.all?(&:empty?)
     end
 
     def conflicted?
       # Exact and Partial states should be considered as conflicts when we're
       # comparing superclass positions as we don't support updating these.
 
-      superclass_match? && %i[exact partial].include?(statement_state)
+      (superclass_match? || subclass_match?) && %i[exact partial].include?(statement_state)
     end
   end
 end
