@@ -335,7 +335,7 @@ describe MembershipComparison do
     let(:greens) { { id: 'Q9669' } }
     let(:brighton) { { id: 'Q1070099' } }
 
-    xcontext 'when the statement is bare' do
+    context 'when the statement is bare' do
       subject(:suggestion) do
         { position: subclass, position_parent: superclass, term: term57, party: greens, district: brighton }
       end
@@ -346,7 +346,7 @@ describe MembershipComparison do
       specify { expect(statement).to be_ignored }
     end
 
-    xcontext 'when suggesting the same data' do
+    context 'when suggesting the same data' do
       subject(:suggestion) do
         { position: subclass, position_parent: superclass, term: term57, party: greens, district: brighton }
       end
@@ -357,7 +357,7 @@ describe MembershipComparison do
       specify { expect(statement).to be_a_conflict.with_problem('position conflict') }
     end
 
-    xcontext 'when suggesting additional data' do
+    context 'when suggesting additional data' do
       subject(:suggestion) do
         { position: subclass, position_parent: superclass, term: term57, party: greens, district: brighton }
       end
@@ -368,7 +368,7 @@ describe MembershipComparison do
       specify { expect(statement).to be_a_conflict.with_problem('position conflict') }
     end
 
-    xcontext 'when suggestion new data' do
+    context 'when suggestion new data' do
       subject(:suggestion) do
         { position: subclass, position_parent: superclass, term: term57, party: greens, district: brighton }
       end
