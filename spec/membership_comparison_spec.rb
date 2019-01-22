@@ -340,21 +340,6 @@ describe MembershipComparison do
       specify { expect(existing[0]).to be_a_conflict.with_problem('previous term still open') }
     end
 
-    context 'when suggesting the next term' do
-      let(:existing) do
-        [
-          { position: mp, start: '2015-03-10', party: liberal, district: pontiac },
-        ]
-      end
-      let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
-
-      # Statements: 2015-03-10 ------------> |
-      # Term:                  -> 2015-08-02 | 2015-12-03 ->
-
-      specify { expect(suggestion).not_to be_actionable }
-      specify { expect(existing[0]).to be_a_conflict.with_problem('previous term still open') }
-    end
-
     context 'when suggesting the current term' do
       let(:existing) do
         [
@@ -369,6 +354,21 @@ describe MembershipComparison do
 
       specify { expect(suggestion).not_to be_actionable }
       specify { expect(existing[0]).to be_an_exact_match }
+    end
+
+    context 'when suggesting the next term' do
+      let(:existing) do
+        [
+          { position: mp, start: '2015-03-10', party: liberal, district: pontiac },
+        ]
+      end
+      let(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
+
+      # Statements: 2015-03-10 ------------> |
+      # Term:                  -> 2015-08-02 | 2015-12-03 ->
+
+      specify { expect(suggestion).not_to be_actionable }
+      specify { expect(existing[0]).to be_a_conflict.with_problem('previous term still open') }
     end
   end
 
