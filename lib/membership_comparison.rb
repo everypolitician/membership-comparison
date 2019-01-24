@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './membership_comparison/statement_comparison'
+require_relative './membership_comparison/position_comparison'
 
 class MembershipComparison
   def initialize(existing:, suggestion:)
@@ -48,7 +48,7 @@ class MembershipComparison
 
   def comparisons
     @comparisons ||= existing.each_with_object({}) do |(id, statement), memo|
-      memo[id] = StatementComparison.new(
+      memo[id] = PositionComparison.new(
         statement:  statement,
         suggestion: suggestion,
         options:    options

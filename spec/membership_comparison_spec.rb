@@ -322,4 +322,61 @@ describe MembershipComparison do
     it { is_expected.not_to be_actionable }
     specify { expect(statement).to be_a_conflict.with_problem('district is a disambiguation') }
   end
+
+  context 'when there are existing statements for a superclass position' do
+    let(:subclass) { term_specific_mp }
+    let(:superclass) { mp }
+
+    let(:mp) { { id: 'Q16707842' } } # Member of Parliament of the United Kingdom
+    let(:term_specific_mp) { { id: 'Q30524710' } } # Member of the 57th Parliament of the United Kingdom
+
+    let(:term56) { { id: 'Q21084473' } }
+    let(:term57) { { id: 'Q29974940' } }
+    let(:greens) { { id: 'Q9669' } }
+    let(:brighton) { { id: 'Q1070099' } }
+
+    context 'when the statement is bare' do
+      subject(:suggestion) do
+        { position: subclass, position_parent: superclass, term: term57, party: greens, district: brighton }
+      end
+
+      let(:statement) { { position: superclass, term: {} } }
+
+      it { is_expected.to be_actionable }
+      specify { expect(statement).to be_ignored }
+    end
+
+    context 'when suggesting the same data' do
+      subject(:suggestion) do
+        { position: subclass, position_parent: superclass, term: term57, party: greens, district: brighton }
+      end
+
+      let(:statement) { { position: superclass, term: term57, party: greens, district: brighton } }
+
+      it { is_expected.not_to be_actionable }
+      specify { expect(statement).to be_a_conflict.with_problem('position conflict') }
+    end
+
+    context 'when suggesting additional data' do
+      subject(:suggestion) do
+        { position: subclass, position_parent: superclass, term: term57, party: greens, district: brighton }
+      end
+
+      let(:statement) { { position: superclass, party: greens } }
+
+      it { is_expected.not_to be_actionable }
+      specify { expect(statement).to be_a_conflict.with_problem('position conflict') }
+    end
+
+    context 'when suggestion new data' do
+      subject(:suggestion) do
+        { position: subclass, position_parent: superclass, term: term57, party: greens, district: brighton }
+      end
+
+      let(:statement) { { position: superclass, term: term56, party: greens, district: brighton } }
+
+      it { is_expected.to be_actionable }
+      specify { expect(statement).to be_ignored }
+    end
+  end
 end
