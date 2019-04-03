@@ -340,7 +340,7 @@ describe MembershipComparison do
         { position: subclass, position_parent: superclass, term: term57, party: greens, district: brighton }
       end
 
-      let(:statement) { { position: superclass, term: {} } }
+      let(:statement) { { position: superclass, start: nil, end: nil, term: {} } }
 
       it { is_expected.to be_actionable }
       specify { expect(statement).to be_ignored }
@@ -397,7 +397,7 @@ describe MembershipComparison do
         { position: superclass, position_children: [subclass], term: term57, party: greens, district: brighton }
       end
 
-      let(:statement) { { position: subclass, term: {} } }
+      let(:statement) { { position: subclass, start: nil, end: nil, term: {} } }
 
       it { is_expected.to be_actionable }
       specify { expect(statement).to be_ignored }
