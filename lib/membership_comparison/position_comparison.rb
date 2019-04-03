@@ -44,7 +44,9 @@ class MembershipComparison
     end
 
     def bare?
-      (superclass_match? || subclass_match?) && statement.reject { |k| k == :position }.values.all?(&:empty?)
+      (superclass_match? || subclass_match?) && statement.reject { |k| k == :position }.values.all? do |value|
+        value.nil? || value.empty?
+      end
     end
 
     def conflicted?
