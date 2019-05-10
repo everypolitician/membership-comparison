@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require 'date'
 require_relative './spec_helper'
 require_relative './membership_comparison_support'
 require_relative '../lib/membership_comparison'
 
+# rubocop:disable Metrics/LineLength
 describe MembershipComparison do
   include_context 'spec setup'
 
@@ -13,9 +15,9 @@ describe MembershipComparison do
   let(:conservative) { { id: 'Q488523' } }
   let(:pontiac) { { id: 'Q3397734' } }
   let(:quebec) { { id: 'Q3414825' } }
-  let(:term40) { { id: 'Q2816734', eopt: '2008-09-07', start: '2008-11-18', end: '2011-03-26', sont: '2011-06-02' } }
-  let(:term41) { { id: 'Q2816776', eopt: '2011-03-26', start: '2011-06-02', end: '2015-08-02', sont: '2015-12-03' } }
-  let(:term42) { { id: 'Q21157957', eopt: '2015-08-02', start: '2015-12-03' } }
+  let(:term40) { { id: 'Q2816734', eopt: Date.parse('2008-09-07'), start: Date.parse('2008-11-18'), end: Date.parse('2011-03-26'), sont: Date.parse('2011-06-02') } }
+  let(:term41) { { id: 'Q2816776', eopt: Date.parse('2011-03-26'), start: Date.parse('2011-06-02'), end: Date.parse('2015-08-02'), sont: Date.parse('2015-12-03') } }
+  let(:term42) { { id: 'Q21157957', eopt: Date.parse('2015-08-02'), start: Date.parse('2015-12-03') } }
 
   context 'when there are no statements' do
     subject(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
@@ -132,7 +134,7 @@ describe MembershipComparison do
 
   context 'when suggesting term started the same day as a statement' do
     subject(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
-    let(:statement) { { position: mp, start: '2015-12-03', party: liberal, district: pontiac } }
+    let(:statement) { { position: mp, start: Date.parse('2015-12-03'), party: liberal, district: pontiac } }
 
     # Statements:                 2015-12-03 ->
     # Term:       -> 2015-08-02 | 2015-12-03 ->
@@ -143,7 +145,7 @@ describe MembershipComparison do
 
   context 'when suggesting term started after a statement' do
     subject(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
-    let(:statement) { { position: mp, start: '2015-10-18', party: liberal, district: pontiac } }
+    let(:statement) { { position: mp, start: Date.parse('2015-10-18'), party: liberal, district: pontiac } }
 
     # Statements:                 2015-10-18 ------------>
     # Term:       -> 2015-08-02 |            2015-12-03 ->
@@ -154,7 +156,7 @@ describe MembershipComparison do
 
   context 'when suggesting term started during a statement' do
     subject(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
-    let(:statement) { { position: mp, start: '2011-06-02', end: '2017-11-12', party: liberal, district: pontiac } }
+    let(:statement) { { position: mp, start: Date.parse('2011-06-02'), end: Date.parse('2017-11-12'), party: liberal, district: pontiac } }
 
     # Statements: 2011-06-02 ----------------------------> 2017-11-12
     # Term:                  -> 2015-08-02 | 2015-12-03 ->
@@ -165,7 +167,7 @@ describe MembershipComparison do
 
   context 'when suggesting term ending before a statement' do
     subject(:suggestion) { { position: mp, term: term41, party: liberal, district: pontiac } }
-    let(:statement) { { position: mp, start: '2015-12-03', party: liberal, district: pontiac } }
+    let(:statement) { { position: mp, start: Date.parse('2015-12-03'), party: liberal, district: pontiac } }
 
     # Statements:                                            2015-12-03 ->
     # Term:       -> 2011-03-26 | 2011-06-02 -> 2015-08-02 | 2015-12-03 ->
@@ -193,9 +195,9 @@ describe MembershipComparison do
     subject(:suggestion) { { position: mp, term: term41, party: liberal, district: pontiac } }
 
     let(:previous_statement) do
-      { position: mp, start: '2008-11-18', end: '2011-03-26', party: liberal, district: pontiac }
+      { position: mp, start: Date.parse('2008-11-18'), end: Date.parse('2011-03-26'), party: liberal, district: pontiac }
     end
-    let(:next_statement) { { position: mp, start: '2017-01-03', party: liberal, district: pontiac } }
+    let(:next_statement) { { position: mp, start: Date.parse('2017-01-03'), party: liberal, district: pontiac } }
     let(:statements) { [previous_statement, next_statement] }
 
     # Statements: 2008-11-18 -> 2011-03-26 |                          |            2017-01-03 ->
@@ -227,12 +229,12 @@ describe MembershipComparison do
     subject(:suggestion) { { position: mp, term: term41, party: liberal, district: pontiac } }
 
     let(:previous_statement) do
-      { position: mp, start: '2008-11-18', end: '2011-03-26', party: liberal, district: pontiac }
+      { position: mp, start: Date.parse('2008-11-18'), end: Date.parse('2011-03-26'), party: liberal, district: pontiac }
     end
     let(:statement) do
-      { position: mp, start: '2011-06-02', end: '2015-08-02', party: liberal, district: pontiac }
+      { position: mp, start: Date.parse('2011-06-02'), end: Date.parse('2015-08-02'), party: liberal, district: pontiac }
     end
-    let(:next_statement) { { position: mp, start: '2017-01-03', party: liberal, district: pontiac } }
+    let(:next_statement) { { position: mp, start: Date.parse('2017-01-03'), party: liberal, district: pontiac } }
     let(:statements) { [previous_statement, statement, next_statement] }
 
     # Statements: 2008-11-18 -> 2011-03-26 | 2011-06-02 -> 2015-08-02 |            2017-01-03 ->
@@ -245,8 +247,8 @@ describe MembershipComparison do
   end
 
   context 'when suggesting a start date after a statement within the same histrical term' do
-    subject(:suggestion) { { position: mp, term: term42, start: '2017-01-03', party: liberal, district: pontiac } }
-    let(:statement) { { position: mp, start: '2015-12-03', end: '2016-04-03', party: liberal, district: pontiac } }
+    subject(:suggestion) { { position: mp, term: term42, start: Date.parse('2017-01-03'), party: liberal, district: pontiac } }
+    let(:statement) { { position: mp, start: Date.parse('2015-12-03'), end: Date.parse('2016-04-03'), party: liberal, district: pontiac } }
 
     # Statements:                 2015-12-03 -> 2016-04-03 |
     # Term:       -> 2015-08-02 | 2015-12-03 ->            |
@@ -258,8 +260,8 @@ describe MembershipComparison do
 
   context 'when there is a statement for a previous term which has not been closed' do
     context 'when suggesting the same term' do
-      subject(:suggestion) { { position: mp, term: term42, start: '2017-01-03', party: liberal, district: pontiac } }
-      let(:statement) { { position: mp, start: '2015-12-03', party: liberal, district: pontiac } }
+      subject(:suggestion) { { position: mp, term: term42, start: Date.parse('2017-01-03'), party: liberal, district: pontiac } }
+      let(:statement) { { position: mp, start: Date.parse('2015-12-03'), party: liberal, district: pontiac } }
 
       # Statements:                 2015-12-03 ------------>
       # Term:       -> 2015-08-02 | 2015-12-03 ------------>
@@ -271,7 +273,7 @@ describe MembershipComparison do
 
     context 'when suggesting the current term' do
       subject(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
-      let(:statement) { { position: mp, term: term42, start: '2016-03-03', party: liberal, district: pontiac } }
+      let(:statement) { { position: mp, term: term42, start: Date.parse('2016-03-03'), party: liberal, district: pontiac } }
 
       # Statements: 2015-03-10 ------------> |
       # Term:                  -> 2015-08-02 | 2015-12-03 ->
@@ -282,7 +284,7 @@ describe MembershipComparison do
 
     context 'when suggesting the next term' do
       subject(:suggestion) { { position: mp, term: term42, party: liberal, district: pontiac } }
-      let(:statement) { { position: mp, start: '2015-03-10', party: liberal, district: pontiac } }
+      let(:statement) { { position: mp, start: Date.parse('2015-03-10'), party: liberal, district: pontiac } }
 
       # Statements:                            2016-03-03 ->
       # Term:       -> 2015-08-02 | 2015-12-03 ------------>
@@ -437,3 +439,4 @@ describe MembershipComparison do
     end
   end
 end
+# rubocop:enable Metrics/LineLength
