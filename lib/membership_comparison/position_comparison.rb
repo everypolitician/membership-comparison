@@ -45,7 +45,7 @@ class MembershipComparison
 
     def bare?
       (superclass_match? || subclass_match?) && statement.reject { |k| k == :position }.values.all? do |value|
-        value.nil? || value.empty?
+        value.nil? || (value.is_a?(Enumerable) && value.empty?)
       end
     end
 
